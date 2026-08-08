@@ -2,8 +2,6 @@
 
 > **Môn học:** Thiết kế Cơ sở dữ liệu
 
-> **Giảng viên hướng dẫn:** Ths. Nguyễn Văn Chiến
-
 > **Mã học phần:** 012012100203
 
 ---
