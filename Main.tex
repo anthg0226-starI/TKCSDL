@@ -1,0 +1,92 @@
+\documentclass[letterpaper,12pt,leqno]{report}
+
+% Căn lề chuẩn
+\usepackage[letterpaper, top=2.5cm, bottom=2.5cm, left=3cm, right=2cm]{geometry}
+
+% Cấu hình Tiếng Việt và Font chữ
+\usepackage[T5]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[vietnamese]{babel}
+\usepackage{mathptmx}
+
+% Các gói bảng, toán học và giao diện
+\usepackage{array, booktabs, longtable}
+\usepackage{amsmath, amsfonts, amssymb}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage[most]{tcolorbox}
+\usepackage{enumitem}
+\usepackage{indentfirst}
+\usepackage{hyperref}
+
+% Cấu hình
+\usepackage{tocloft}
+\renewcommand{\cftchappresnum}{Chương }
+\setlength{\cftchapnumwidth}{5.5em}
+
+\addto\captionsvietnamese{
+  \renewcommand{\chaptername}{Chương}
+  \renewcommand{\contentsname}{MỤC LỤC}
+}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Bao cao Bai tap lon CSDL}
+}
+
+\begin{document}
+
+% Trang bìa
+\begin{titlepage}
+    \centering
+    \Large\textbf{TRƯỜNG ĐẠI HỌC GIAO THÔNG VẬN TẢI}\\[0.3cm]
+    \Large\textbf{PHÂN HIỆU TẠI TP. HỒ CHÍ MINH}\\[1.5cm]
+
+    \Huge\textbf{BÁO CÁO BÀI TẬP LỚN}\\[0.5cm]
+    \Large\textbf{MÔN: THIẾT KẾ CƠ SỞ DỮ LIỆU}\\[1.5cm]
+
+    \Large\textbf{Đề tài: Thiết kế Cơ sở Dữ liệu cho Hệ thống Giám sát và Bảo trì}\\[0.3cm]
+    \Large\textbf{Cơ sở Hạ tầng Tích hợp Thực tế Tăng cường (AR-IMMS)}\\[0.3cm]
+
+    \vfill
+    \Large\textbf{TP. Hồ Chí Minh, Năm 2026}
+\end{titlepage}
+
+\cleardoublepage
+\pagenumbering{arabic}
+
+% Mục lục
+\tableofcontents
+\cleardoublepage
+
+% phần mở đầu
+\addtocontents{toc}{\protect\vspace{1em}\protect\noindent\textbf{\Large PHẦN MỞ ĐẦU}\par}
+
+\input{preface}
+
+% phần nội dung chính
+\addtocontents{toc}{\protect\vspace{1em}\protect\noindent\textbf{\Large PHẦN NỘI DUNG CHÍNH}\par}
+
+\chapter{Khảo sát Yêu cầu \& Nghiệp vụ Hệ thống}
+\input{chuong1}
+
+\chapter{Thiết kế Quan niệm (Mô hình ERD)}
+\input{chuong2}
+
+\chapter{Thiết kế Logic \& Chuẩn hóa Dạng chuẩn}
+\input{chuong3}
+
+\chapter{Thiết kế Vật lý \& Code Script SQL}
+\input{chuong4}
+
+% phần tổng kết và phụ lục
+\addtocontents{toc}{\protect\vspace{1em}\protect\noindent\textbf{\Large PHẦN TỔNG KẾT \& PHỤ LỤC}\par}
+
+\chapter*{Lời cảm ơn \& Kết luận}
+\addcontentsline{toc}{chapter}{Lời cảm ơn \& Kết luận}
+\input{acknowledgements}
+
+\end{document}
