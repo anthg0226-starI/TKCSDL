@@ -1,0 +1,30 @@
+name: Compile LaTeX to PDF
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build_latex:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Compile LaTeX document
+        uses: xu-cheng/latex-action@v3
+        with:
+          root_file: Main.tex
+          args: "-pdf -file-line-error -interaction=nonstopmode"
+
+      - name: Commit and Push compiled PDF
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add Main.pdf
+          git commit -m "Auto-compile Main.pdf via GitHub Actions" || exit 0
+          git push
