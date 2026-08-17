@@ -18,9 +18,31 @@
 \usepackage{enumitem}
 \usepackage{indentfirst}
 \usepackage{hyperref}
-
-% Cấu hình
+\usepackage{titlesec}
 \usepackage{tocloft}
+
+% CẤU HÌNH ĐỊNH DẠNG DỰA TRÊN CẤU TRÚC PART & CHAPTER
+\titleformat{\part}[block]
+  {\normalfont\bfseries\raggedright}
+  {}
+  {0pt}
+  {\Large\MakeUppercase}
+
+\titlespacing*{\part}{0pt}{20pt}{20pt}
+\titleformat{\chapter}[block]
+  {\normalfont\bfseries\raggedright}
+  {\fontsize{16pt}{20pt}\selectfont\chaptertitlename\ \thechapter:\ }
+  {0pt}
+  {\fontsize{16pt}{20pt}\selectfont}
+\titleformat{name=\chapter,numberless}[block]
+  {\normalfont\bfseries\raggedright}
+  {}
+  {0pt}
+  {\fontsize{16pt}{20pt}\selectfont}
+
+\titlespacing*{\chapter}{0pt}{20pt}{30pt}
+
+% Mục lục
 \renewcommand{\cftchappresnum}{Chương }
 \setlength{\cftchapnumwidth}{5.5em}
 
@@ -37,6 +59,7 @@
     pdftitle={Bao cao Bai tap lon CSDL}
 }
 
+% Nội dung
 \begin{document}
 
 % Trang bìa
@@ -62,24 +85,25 @@
 \tableofcontents
 \cleardoublepage
 
-% phần mở đầu
-\addtocontents{toc}{\protect\vspace{1em}\protect\noindent\textbf{\Large PHẦN MỞ ĐẦU}\par}
+% PHẦN MỞ ĐẦU
+\addtocontents{toc}{\protect\vspace{1.5em}\protect\noindent{\bfseries\Large PHẦN MỞ ĐẦU}\par\protect\vspace{0.5em}}
 
 \input{preface}
 
-% phần nội dung chính
-\addtocontents{toc}{\protect\vspace{1em}\protect\noindent\textbf{\Large PHẦN NỘI DUNG CHÍNH}\par}
+\cleardoublepage
+
+% PHẦN NỘI DUNG CHÍNH
+\addtocontents{toc}{\protect\vspace{1.5em}\protect\noindent{\bfseries\Large PHẦN NỘI DUNG CHÍNH}\par\protect\vspace{0.5em}}
 
 \input{chuong1}
-
 \input{chuong2}
-
 \input{chuong3}
-
 \input{chuong4}
 
-% phần tổng kết và phụ lục
-\addtocontents{toc}{\protect\vspace{1em}\protect\noindent\textbf{\Large PHẦN TỔNG KẾT \& PHỤ LỤC}\par}
+\cleardoublepage
+
+% PHẦN TỔNG KẾT & PHỤ LỤC
+\addtocontents{toc}{\protect\vspace{1.5em}\protect\noindent{\bfseries\Large PHẦN TỔNG KẾT \& PHỤ LỤC}\par\protect\vspace{0.5em}}
 
 \chapter*{Lời cảm ơn \& Kết luận}
 \addcontentsline{toc}{chapter}{Lời cảm ơn \& Kết luận}
