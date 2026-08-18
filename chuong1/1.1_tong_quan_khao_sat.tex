@@ -1,4 +1,25 @@
 % An
-\section{Tổng quan về khảo sát hệ thống}
+\section{Mục tiêu và Phạm vi Khảo sát}
 
-\subsection{Bối cảnh và lý do chọn đề tài}
+\subsection{Bối cảnh và Lý do khảo sát}
+Trong bối cảnh chuyển đổi số, việc quản lý hạ tầng kỹ thuật tại các trung tâm dữ liệu đang chuyển dịch từ phương thức truyền thống sang các hệ thống giám sát hiện đại. Tuy nhiên, thực tế khảo sát cho thấy một rào cản lớn là sự tách rời giữa dữ liệu giám sát số và vị trí vật lý của thiết bị (\textit{Spatial Disconnect}), khiến kỹ thuật viên mất nhiều thời gian để xác định vị trí lỗi trong thực tế. Do đó, việc khảo sát hệ thống là bước đi tiên quyết để nắm bắt dòng nghiệp vụ, từ đó thiết kế một giải pháp tích hợp Thực tế tăng cường (AR) và Cặp song sinh số (\textit{Digital Twin}) nhằm tối ưu hóa hiệu quả vận hành.
+
+\subsection{Mục tiêu khảo sát}
+Quá trình khảo sát được thực hiện nhằm đạt được các mục tiêu cụ thể phục vụ cho giai đoạn thiết kế:
+\begin{itemize}
+    \item \textbf{Nắm vững dòng nghiệp vụ thực tế:} Phân tích quy trình từ lúc hệ thống ghi nhận chỉ số, phát hiện bất thường cho đến khi kỹ thuật viên tiếp nhận và xử lý sự cố.
+    \item \textbf{Xác định yêu cầu dữ liệu:} Đánh giá các tập dữ liệu đầu vào (thông tin phần cứng, chỉ số Telemetry từ cảm biến) và đầu ra (báo cáo hiệu suất, phiếu bảo trì).
+    \item \textbf{Xây dựng các quy tắc nghiệp vụ (\textit{Business Rules}):} Thu thập các ràng buộc về cấp độ ưu tiên của sự cố, quy trình phê duyệt phiếu công tác và mô hình phân quyền người dùng (RBAC).
+    \item \textbf{Làm cơ sở thiết kế CSDL:} Tạo tiền đề để xây dựng mô hình thực thể liên kết (ERD) và chuẩn hóa dữ liệu, đảm bảo hệ thống vận hành ổn định.
+\end{itemize}
+
+\subsection{Phạm vi khảo sát}
+Để đảm bảo tính khả thi trong phạm vi thiết kế, hoạt động khảo sát tập trung vào các phương diện trọng tâm sau:
+\begin{itemize}
+    \item \textbf{Đối tượng khảo sát:} Bao gồm hạ tầng phần cứng (máy chủ, tủ Rack, cảm biến IoT) và các nhóm người dùng tương tác với hệ thống (Quản trị viên, Giám sát viên, Kỹ thuật viên hiện trường).
+    \item \textbf{Dữ liệu vận hành:} Tập trung vào các chỉ số thời gian thực như nhiệt độ, điện năng tiêu thụ (PUE) và trạng thái hoạt động của các dịch vụ/container.
+    \item \textbf{Phân hệ chức năng:} Khảo sát sâu 4 phân hệ chính: Quản lý tài sản, Giám sát Telemetry \& Cảnh báo, Quản lý sự cố \& Bảo trì, và Quản trị an toàn hệ thống.
+\end{itemize}
+
+\subsection{Phương pháp thực hiện}
+Việc thu thập thông tin được thực hiện chủ yếu thông qua \textbf{Phương pháp khảo sát tài liệu} (\textit{Document Analysis}). Nhóm tập trung nghiên cứu các quy trình vận hành chuẩn (SOP), tài liệu hướng dẫn thiết bị và các biểu mẫu báo cáo sự cố hiện có để xây dựng nền tảng lý thuyết và thực tiễn cho bản thiết kế.
