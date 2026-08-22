@@ -1,19 +1,19 @@
 \section{Nghiệp vụ Sự cố và Quản lý Phiếu Bảo trì}
-Quy trình quản lý phiếu bảo trì khép kín luồng xử lý bằng cách chuyển hóa các cảnh báo tự động thành hành động thực địa của Kỹ thuật viên[cite: 4].
+Quy trình quản lý phiếu bảo trì khép kín luồng xử lý bằng cách chuyển hóa các cảnh báo tự động thành hành động thực địa của Kỹ thuật viên.
 
 \subsection{Quản lý Sự cố và Lập Phiếu Bảo trì}
 \begin{itemize}[leftmargin=2em]
-    \item \textbf{Sự cố (\texttt{Incident}):} Khi cảnh báo chuyển sang trạng thái \texttt{ACKNOWLEDGED}, Người vận hành (Operator) tạo một \texttt{Incident} gom nhóm một hoặc nhiều cảnh báo gốc (\texttt{Alert}) liên quan, thiết lập độ nghiêm trọng \texttt{severity} (\texttt{LOW}, \texttt{MEDIUM}, \texttt{HIGH}, \texttt{CRITICAL})[cite: 4].
-    \item \textbf{Phiếu bảo trì (\texttt{MaintenanceTicket}):} Từ \texttt{Incident}, Operator lập các phiếu \texttt{MaintenanceTicket} giao việc cho Kỹ thuật viên (\texttt{assigned\_to})[cite: 4]. Phiếu xác định rõ thiết bị mục tiêu \texttt{target\_id} (\texttt{SERVER}, \texttt{RACK}, \texttt{CONTAINER}), độ ưu tiên \texttt{priority} và hạn chót \texttt{scheduled\_at}[cite: 4].
+    \item \textbf{Sự cố (\texttt{Incident}):} Khi cảnh báo chuyển sang trạng thái \texttt{ACKNOWLEDGED}, Người vận hành (Operator) tạo một \texttt{Incident} gom nhóm một hoặc nhiều cảnh báo gốc (\texttt{Alert}) liên quan, thiết lập độ nghiêm trọng \texttt{severity} (\texttt{LOW}, \texttt{MEDIUM}, \texttt{HIGH}, \texttt{CRITICAL}).
+    \item \textbf{Phiếu bảo trì (\texttt{MaintenanceTicket}):} Từ \texttt{Incident}, Operator lập các phiếu \texttt{MaintenanceTicket} giao việc cho Kỹ thuật viên (\texttt{assigned\_to}). Phiếu xác định rõ thiết bị mục tiêu \texttt{target\_id} (\texttt{SERVER}, \texttt{RACK}, \texttt{CONTAINER}), độ ưu tiên \texttt{priority} và hạn chót \texttt{scheduled\_at}.
 \end{itemize}
 
 \subsection{Thực thi Bảo trì Hiện trường và Ghi Nhật ký}
 \begin{itemize}[leftmargin=2em]
-    \item \textbf{Tiến trình xử lý Phiếu bảo trì:} Phiếu công việc tuân thủ máy trạng thái[cite: 4]:
+    \item \textbf{Tiến trình xử lý Phiếu bảo trì:} Phiếu công việc tuân thủ máy trạng thái:
     \begin{equation*}
     \text{\texttt{ASSIGNED}} \longrightarrow \text{\texttt{IN\_PROGRESS}} \longrightarrow \text{\texttt{PENDING\_APPROVAL}} \longrightarrow \text{\texttt{CLOSED}}
     \end{equation*}
-    \item Kỹ thuật viên quét mã \texttt{qr\_code\_stamp} trên máy chủ bằng ứng dụng Mobile AR để tra cứu các phiếu bảo trì đang hoạt động (\texttt{ASSIGNED} / \texttt{IN\_PROGRESS}) gán cho thiết bị đó[cite: 4].
-    \item \textbf{Nhật ký bảo trì (\texttt{MaintenanceLog}):} Khi thao tác, Kỹ thuật viên cập nhật nhật ký lưu lại cờ xác nhận có dùng AR (\texttt{ar\_session\_used}), ghi chú chẩn đoán (\texttt{investigation\_notes}), nguyên nhân gốc (\texttt{root\_cause}), biện pháp khắc phục (\texttt{corrective\_action}) và linh kiện thay thế (\texttt{parts\_replaced})[cite: 4].
-    \item \textbf{Quy tắc phê duyệt đóng phiếu:} Kỹ thuật viên không được tự đóng ticket[cite: 4]. Sau khi xử lý xong, Kỹ thuật viên chuyển ticket sang \texttt{PENDING\_APPROVAL}[cite: 4]. Chỉ Operator mới có quyền phê duyệt đóng phiếu (\texttt{CLOSED}) và cập nhật trạng thái sự cố \texttt{Incident} sang \texttt{RESOLVED}/\texttt{CLOSED}[cite: 4].
+    \item Kỹ thuật viên quét mã \texttt{qr\_code\_stamp} trên máy chủ bằng ứng dụng Mobile AR để tra cứu các phiếu bảo trì đang hoạt động (\texttt{ASSIGNED} / \texttt{IN\_PROGRESS}) gán cho thiết bị đó.
+    \item \textbf{Nhật ký bảo trì (\texttt{MaintenanceLog}):} Khi thao tác, Kỹ thuật viên cập nhật nhật ký lưu lại cờ xác nhận có dùng AR (\texttt{ar\_session\_used}), ghi chú chẩn đoán (\texttt{investigation\_notes}), nguyên nhân gốc (\texttt{root\_cause}), biện pháp khắc phục (\texttt{corrective\_action}) và linh kiện thay thế (\texttt{parts\_replaced}).
+    \item \textbf{Quy tắc phê duyệt đóng phiếu:} Kỹ thuật viên không được tự đóng ticket. Sau khi xử lý xong, Kỹ thuật viên chuyển ticket sang \texttt{PENDING\_APPROVAL}. Chỉ Operator mới có quyền phê duyệt đóng phiếu (\texttt{CLOSED}) và cập nhật trạng thái sự cố \texttt{Incident} sang \texttt{RESOLVED}/\texttt{CLOSED}.
 \end{itemize}
