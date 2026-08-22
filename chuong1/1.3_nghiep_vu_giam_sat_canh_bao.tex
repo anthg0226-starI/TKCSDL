@@ -1,21 +1,21 @@
 % Phuong
 \section{Nghiệp vụ Giám sát Vận hành và Quản lý Cảnh báo}
-Phân hệ đảm nhận chức năng tiếp nhận chuỗi dữ liệu thời gian thực (real-time streaming telemetry) từ các lightweight collector agent, tự động đánh giá vi phạm ngưỡng và quản lý vòng đời cảnh báo[cite: 3].
+Phân hệ đảm nhận chức năng tiếp nhận chuỗi dữ liệu thời gian thực (real-time streaming telemetry) từ các lightweight collector agent, tự động đánh giá vi phạm ngưỡng và quản lý vòng đời cảnh báo.
 
 \subsection{Thu thập Dữ liệu Đo lường Chuỗi thời gian}
 \begin{itemize}[leftmargin=2em]
-    \item Collector Agent cài đặt tại từng máy chủ tự động gửi dữ liệu định kỳ (mặc định \textbf{5 giây/lần}) lưu trữ vào thực thể \texttt{telemetry\_metric}[cite: 3].
-    \item Mỗi bản ghi telemetry (\texttt{metric\_id}) gắn liền với một máy chủ (\texttt{server\_id}) bao gồm: tỷ lệ CPU (\texttt{cpu\_usage}), bộ nhớ RAM (\texttt{ram\_usage}), thông lượng mạng (\texttt{network\_traffic}), trạng thái các container (\texttt{container\_states}) dạng JSON và mốc thời gian \texttt{timestamp}[cite: 3].
-    \item \textbf{Phát hiện mất kết nối:} Hệ thống cập nhật trường \texttt{last\_seen} trong thực thể \texttt{server}[cite: 3]. Nếu quá \textbf{90 giây} không nhận được dữ liệu, trạng thái \texttt{status} của máy chủ tự động chuyển sang \texttt{unavailable}[cite: 3].
+    \item Collector Agent cài đặt tại từng máy chủ tự động gửi dữ liệu định kỳ (mặc định \textbf{5 giây/lần}) lưu trữ vào thực thể \texttt{telemetry\_metric}.
+    \item Mỗi bản ghi telemetry (\texttt{metric\_id}) gắn liền với một máy chủ (\texttt{server\_id}) bao gồm: tỷ lệ CPU (\texttt{cpu\_usage}), bộ nhớ RAM (\texttt{ram\_usage}), thông lượng mạng (\texttt{network\_traffic}), trạng thái các container (\texttt{container\_states}) dạng JSON và mốc thời gian \texttt{timestamp}.
+    \item \textbf{Phát hiện mất kết nối:} Hệ thống cập nhật trường \texttt{last\_seen} trong thực thể \texttt{server}. Nếu quá \textbf{90 giây} không nhận được dữ liệu, trạng thái \texttt{status} của máy chủ tự động chuyển sang \texttt{unavailable}.
 \end{itemize}
 
 \subsection{Cấu hình Ngưỡng và Vòng đời Cảnh báo}
 \begin{itemize}[leftmargin=2em]
-    \item \textbf{Cấu hình ngưỡng (\texttt{alert\_threshold}):} Định nghĩa luật vi phạm cho từng loại chỉ số \texttt{metric\_type}, quy định mức cảnh báo nhẹ \texttt{warning\_value} và mức nguy hiểm \texttt{critical\_value}[cite: 3].
-    \item \textbf{Phát sinh cảnh báo (\texttt{alert}):} Khi dữ liệu telemetry vượt ngưỡng hoặc kết nối bị ngắt, một sự kiện cảnh báo \texttt{alert\_id} tự động phát sinh liên kết với \texttt{server\_id} và \texttt{threshold\_id}[cite: 3].
-    \item \textbf{Vòng đời xử lý Cảnh báo (\texttt{state}):} Cảnh báo được theo dõi qua các trạng thái[cite: 3]:
+    \item \textbf{Cấu hình ngưỡng (\texttt{alert\_threshold}):} Định nghĩa luật vi phạm cho từng loại chỉ số \texttt{metric\_type}, quy định mức cảnh báo nhẹ \texttt{warning\_value} và mức nguy hiểm \texttt{critical\_value}.
+    \item \textbf{Phát sinh cảnh báo (\texttt{alert}):} Khi dữ liệu telemetry vượt ngưỡng hoặc kết nối bị ngắt, một sự kiện cảnh báo \texttt{alert\_id} tự động phát sinh liên kết với \texttt{server\_id} và \texttt{threshold\_id}.
+    \item \textbf{Vòng đời xử lý Cảnh báo (\texttt{state}):} Cảnh báo được theo dõi qua các trạng thái:
     \begin{equation*}
     \text{\texttt{OPEN}} \longrightarrow \text{\texttt{ACKNOWLEDGED}} \longrightarrow \text{\texttt{RESOLVED}} \longrightarrow \text{\texttt{CLOSED}}
     \end{equation*}
-    \item \textbf{Chống bão cảnh báo (Alert Suppression):} Nếu máy chủ đang bị sự cố và đã có phiếu xử lý \texttt{IN\_PROGRESS}, các cảnh báo trùng lặp tiếp theo sẽ tự động được gộp vào sự cố hiện tại[cite: 3].
+    \item \textbf{Chống bão cảnh báo (Alert Suppression):} Nếu máy chủ đang bị sự cố và đã có phiếu xử lý \texttt{IN\_PROGRESS}, các cảnh báo trùng lặp tiếp theo sẽ tự động được gộp vào sự cố hiện tại.
 \end{itemize}
