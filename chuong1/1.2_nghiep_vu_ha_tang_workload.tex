@@ -1,0 +1,41 @@
+
+\section{Khảo sát Nghiệp vụ Phân hệ Hạ tầng \& Workload (Digital Twin)}
+\label{sec:nghiep_vu_ha_tang}
+
+Phân hệ Hạ tầng và Workload đóng vai trò trung tâm trong việc xây dựng mô hình không gian thực số (Digital Twin) cho Mini Data Center. Hệ thống quản lý không gian vật lý theo cấu trúc phân cấp cây (Tree Topology): Site $\rightarrow$ Room $\rightarrow$ Rack $\rightarrow$ Server $\rightarrow$ Workload. Mô hình này làm cơ sở cho ứng dụng AR chiếu thông tin chồng lấp 3D trực quan đến từng vị trí U (Rack Unit).
+
+\subsection{Luồng Nghiệp vụ Hạ tầng Cốt lõi}
+Dưới đây là các quy trình vận hành và quản lý không gian hạ tầng chính:
+
+\begin{enumerate}[label=\textbf{BR-INF-\arabic*}., leftmargin=3em]
+    \item \textbf{Spatial AR Positioning:} Ánh xạ mã định danh QR/ArUco Marker gắn trên tủ Rack với tọa độ không gian tĩnh, cho phép ứng dụng AR truy vấn và hiển thị mô hình overlay thông tin các máy chủ bên trong.
+    \item \textbf{U-Space Capacity Management:} Kiểm soát không gian vật lý khả dụng ($1\text{U} - 42\text{U}$) trên từng tủ Rack, ngăn ngừa việc xung đột hoặc ghi đè vị trí khi lắp đặt phần cứng mới.
+    \item \textbf{Workload Mapping:} Theo dõi danh sách các máy ảo (VM), Docker container và dịch vụ đang vận hành trên từng máy chủ để đánh giá vùng ảnh hưởng khi xảy ra sự cố bảo trì.
+\end{enumerate}
+
+\subsection{Bảng Mô tả Thuộc tính \& Thực thể Phân hệ Hạ tầng}
+Từ khảo sát nghiệp vụ hạ tầng, các đối tượng dữ liệu được tổng hợp chi tiết trong bảng dưới đây:
+
+\vspace{0.3em}
+\begin{longtable}{|p{3cm}|p{4.5cm}|p{8cm}|}
+\hline
+\textbf{Thực thể} & \textbf{Thuộc tính Khảo sát} & \textbf{Mô tả Nghiệp vụ \& Ràng buộc} \\
+\hline
+\endfirsthead
+\hline
+\textbf{Thực thể} & \textbf{Thuộc tính Khảo sát} & \textbf{Mô tả Nghiệp vụ \& Ràng buộc} \\
+\hline
+\endhead
+\hline
+\endfoot
+\texttt{Sites} & \texttt{SiteID}, \texttt{SiteName}, \texttt{Location}, \texttt{Description} & Quản lý vị trí địa lý tổng thể của trung tâm dữ liệu. Khóa chính \texttt{SiteID}. \\
+\hline
+\texttt{Rooms} & \texttt{RoomID}, \texttt{SiteID}, \texttt{RoomName}, \texttt{FloorNumber} & Quản lý không gian chứa Rack. Liên kết $N-1$ với \texttt{Sites} qua khóa ngoại \texttt{SiteID}. \\
+\hline
+\texttt{Racks} & \texttt{RackID}, \texttt{RoomID}, \texttt{RackName}, \texttt{TotalCapacityU}, \texttt{QRCodeMarker} & Định vị tủ Rack vật lý. Trường \texttt{QRCodeMarker} phục vụ ứng dụng AR nhận diện không gian. \\
+\hline
+\texttt{Servers} & \texttt{ServerID}, \texttt{RackID}, \texttt{ServerName}, \texttt{UPositionStart}, \texttt{UHeight}, \texttt{IPAddress}, \texttt{MACAddress} & Máy chủ vật lý trong Rack. Ràng buộc vị trí từ $1\text{U}-42\text{U}$ không được chồng lấp không gian với Server khác. \\
+\hline
+\texttt{Workloads} & \texttt{WorkloadID}, \texttt{ServerID}, \texttt{WorkloadName}, \texttt{WorkloadType}, \texttt{Status} & Các ứng dụng, VM hoặc Container vận hành trên Server. Xác định mức độ ảnh hưởng khi server gặp sự cố. \\
+\hline
+\end{longtable}
