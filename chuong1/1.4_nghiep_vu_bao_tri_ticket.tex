@@ -1,37 +1,19 @@
-\section{Khảo sát Nghiệp vụ Phân hệ Quản lý Sự cố, Bảo trì \& Tích hợp AR}
-\label{sec:nghiep_vu_bao_tri}
+\section{Nghiệp vụ Sự cố và Quản lý Phiếu Bảo trì}
+Quy trình quản lý phiếu bảo trì khép kín luồng xử lý bằng cách chuyển hóa các cảnh báo tự động thành hành động thực địa của Kỹ thuật viên[cite: 4].
 
-Phân hệ đóng vai trò cầu nối giữa các cảnh báo kỹ thuật tự động và quy trình xử lý thực tế của con người, kết hợp chặt chẽ với ứng dụng di động AR để tối ưu hóa thao tác bảo trì và ghi nhận nhật ký tại hiện trường.
+\subsection{Quản lý Sự cố và Lập Phiếu Bảo trì}
+\begin{itemize}[leftmargin=2em]
+    \item \textbf{Sự cố (\texttt{Incident}):} Khi cảnh báo chuyển sang trạng thái \texttt{ACKNOWLEDGED}, Người vận hành (Operator) tạo một \texttt{Incident} gom nhóm một hoặc nhiều cảnh báo gốc (\texttt{Alert}) liên quan, thiết lập độ nghiêm trọng \texttt{severity} (\texttt{LOW}, \texttt{MEDIUM}, \texttt{HIGH}, \texttt{CRITICAL})[cite: 4].
+    \item \textbf{Phiếu bảo trì (\texttt{MaintenanceTicket}):} Từ \texttt{Incident}, Operator lập các phiếu \texttt{MaintenanceTicket} giao việc cho Kỹ thuật viên (\texttt{assigned\_to})[cite: 4]. Phiếu xác định rõ thiết bị mục tiêu \texttt{target\_id} (\texttt{SERVER}, \texttt{RACK}, \texttt{CONTAINER}), độ ưu tiên \texttt{priority} và hạn chót \texttt{scheduled\_at}[cite: 4].
+\end{itemize}
 
-\subsection{Quy trình Luồng Phiếu Bảo trì (Ticket Lifecycle)}
-Luồng xử lý từ sự cố tự động đến khi đóng phiếu bảo trì tuân theo các bước nghiêm ngặt:
-
-\begin{enumerate}[label=\textbf{BR-MNT-\arabic*}., leftmargin=3em]
-    \item \textbf{Incident Aggregation:} Tự động gom nhiều cảnh báo trùng lặp phát sinh liên tục trên cùng một thiết bị thành một sự cố (\texttt{Incident}) duy nhất nhằm chống bão cảnh báo (Alert Storm).
-    \item \textbf{Ticket Creation \& Assignment:} Vận hành viên (Operator) duyệt sự cố, khởi tạo phiếu bảo trì (\texttt{MaintenanceTicket}) và phân công cho Kỹ thuật viên (Technician).
-    \item \textbf{AR Maintenance Execution:} Kỹ thuật viên quét mã QR trên Rack, xem danh sách phiếu đang mở đè lên vị trí máy chủ hỏng và cập nhật kết quả xử lý vào nhật ký (\texttt{MaintenanceLogs}).
-    \item \textbf{Closure Verification:} Phiếu sau khi hoàn thành chuyển sang trạng thái \textit{Pending Approval} để Operator kiểm tra trước khi chuyển thành \textit{Closed}.
-\end{enumerate}
-
-\subsection{Bảng Mô tả Thuộc tính \& Thực thể Phân hệ Bảo trì}
-Danh mục thực thể dữ liệu quản lý sự cố và vòng đời bảo trì được trình bày chi tiết trong bảng dưới đây:
-
-\vspace{0.3em}
-\begin{longtable}{|p{3.8cm}|p{4.2cm}|p{6.8cm}|}
-\hline
-\textbf{Thực thể} & \textbf{Thuộc tính Khảo sát} & \textbf{Mô tả Nghiệp vụ \& Ràng buộc} \\
-\hline
-\endfirsthead
-\hline
-\textbf{Thực thể} & \textbf{Thuộc tính Khảo sát} & \textbf{Mô tả Nghiệp vụ \& Ràng buộc} \\
-\hline
-\endhead
-\hline
-\endfoot
-\texttt{Incidents} & \texttt{IncidentID}, \texttt{ServerID}, \texttt{Title}, \texttt{Priority}, \texttt{Status}, \texttt{OpenedAt} & Quản lý thông tin sự cố tổng thể. Mức độ ưu tiên (\textit{Low, Medium, High, Urgent}) quy định thời hạn xử lý SLA. \\
-\hline
-\texttt{Maintenance}\discretionary{}{}{}\texttt{Tickets} & \texttt{TicketID}, \texttt{IncidentID}, \texttt{AssignedToUser}, \texttt{CreatedByOperator}, \texttt{ScheduledDate}, \texttt{TicketStatus} & Phiếu phân công công tác. Chuyển trạng thái nghiêm ngặt: \textit{Open} $\rightarrow$ \textit{In-Progress} $\rightarrow$ \textit{Pending Approval} $\rightarrow$ \textit{Closed}. \\
-\hline
-\texttt{MaintenanceLogs} & \texttt{LogID}, \texttt{TicketID}, \texttt{ActionTaken}, \texttt{ReplacedParts}, \texttt{LogTimestamp} & Nhật ký ghi nhận chi tiết các thao tác sửa chữa và linh kiện thay thế tại chỗ do Kỹ thuật viên cập nhật qua AR. \\
-\hline
-\end{longtable}
+\subsection{Thực thi Bảo trì Hiện trường và Ghi Nhật ký}
+\begin{itemize}[leftmargin=2em]
+    \item \textbf{Tiến trình xử lý Phiếu bảo trì:} Phiếu công việc tuân thủ máy trạng thái[cite: 4]:
+    \begin{equation*}
+    \text{\texttt{ASSIGNED}} \longrightarrow \text{\texttt{IN\_PROGRESS}} \longrightarrow \text{\texttt{PENDING\_APPROVAL}} \longrightarrow \text{\texttt{CLOSED}}
+    \end{equation*}
+    \item Kỹ thuật viên quét mã \texttt{qr\_code\_stamp} trên máy chủ bằng ứng dụng Mobile AR để tra cứu các phiếu bảo trì đang hoạt động (\texttt{ASSIGNED} / \texttt{IN\_PROGRESS}) gán cho thiết bị đó[cite: 4].
+    \item \textbf{Nhật ký bảo trì (\texttt{MaintenanceLog}):} Khi thao tác, Kỹ thuật viên cập nhật nhật ký lưu lại cờ xác nhận có dùng AR (\texttt{ar\_session\_used}), ghi chú chẩn đoán (\texttt{investigation\_notes}), nguyên nhân gốc (\texttt{root\_cause}), biện pháp khắc phục (\texttt{corrective\_action}) và linh kiện thay thế (\texttt{parts\_replaced})[cite: 4].
+    \item \textbf{Quy tắc phê duyệt đóng phiếu:} Kỹ thuật viên không được tự đóng ticket[cite: 4]. Sau khi xử lý xong, Kỹ thuật viên chuyển ticket sang \texttt{PENDING\_APPROVAL}[cite: 4]. Chỉ Operator mới có quyền phê duyệt đóng phiếu (\texttt{CLOSED}) và cập nhật trạng thái sự cố \texttt{Incident} sang \texttt{RESOLVED}/\texttt{CLOSED}[cite: 4].
+\end{itemize}
