@@ -1,40 +1,22 @@
-\section{Khảo sát Nghiệp vụ Phân hệ Hạ tầng \& Workload (Digital Twin)}
-\label{sec:nghiep_vu_ha_tang}
+\section{Nghiệp vụ Quản lý Hạ tầng và Workload}
+Hạ tầng của hệ thống AR-IMMS được tổ chức theo mô hình cây phân cấp nghiêm ngặt nhằm liên kết chính xác không gian vật lý của Mini Data Center với tài sản kỹ thuật số[cite: 2].
 
-Phân hệ Hạ tầng và Workload đóng vai trò trung tâm trong việc xây dựng mô hình không gian thực số (Digital Twin) cho Mini Data Center. Hệ thống quản lý không gian vật lý theo cấu trúc phân cấp cây (Tree Topology): Site $\rightarrow$ Room $\rightarrow$ Rack $\rightarrow$ Server $\rightarrow$ Workload. Mô hình này làm cơ sở cho ứng dụng AR chiếu thông tin chồng lấp 3D trực quan đến từng vị trí U (Rack Unit).
+\subsection{Cấu trúc Cây Phân cấp Hạ tầng}
+Hệ thống tổ chức dữ liệu theo chuỗi quan hệ phụ thuộc $1:N$[cite: 2]:
+\begin{equation*}
+\text{Site} \longrightarrow \text{Room} \longrightarrow \text{Rack} \longrightarrow \text{Server} \longrightarrow \text{Workload}
+\end{equation*}
 
-\subsection{Luồng Nghiệp vụ Hạ tầng Cốt lõi}
-Dưới đây là các quy trình vận hành và quản lý không gian hạ tầng chính:
+\begin{itemize}[leftmargin=2em]
+    \item \textbf{Trung tâm Dữ liệu (Site):} Đại diện cho địa điểm triển khai Mini Data Center, quản lý thông tin định danh \texttt{site\_id}, tên trung tâm \texttt{site\_name}, địa chỉ vị trí \texttt{location} và mô tả \texttt{description}[cite: 2].
+    \item \textbf{Phòng Máy chủ (Room):} Không gian chứa các tủ Rack thuộc một Site[cite: 2]. Mỗi Room lưu trữ \texttt{room\_id}, tên phòng \texttt{room\_name} và vị trí tầng \texttt{floor\_level}[cite: 2]. Một Site chứa nhiều Room (\texttt{site\_id} là FK)[cite: 2].
+    \item \textbf{Tủ Rack (Rack):} Đơn vị lưu trữ đặt trong Room, định danh bởi \texttt{rack\_id}, \texttt{rack\_name}, sức chứa tối đa \texttt{max\_unit} và tọa độ \texttt{location\_in\_room}[cite: 2]. Một Room chứa nhiều Rack (\texttt{room\_id} là FK)[cite: 2].
+    \item \textbf{Máy chủ Vật lý / Node (Server):} Thiết bị phần cứng lắp đặt tại vị trí U (\texttt{u\_position}) trong tủ Rack[cite: 2]. Mỗi máy chủ lưu trữ \texttt{server\_id}, tên node \texttt{server\_name}, \texttt{ip\_address}, mã nhãn tài sản \texttt{asset\_tag}, số \texttt{serial\_number}, thông số cấu hình (\texttt{cpu\_model}, \texttt{ram\_total\_gb}, \texttt{storage\_total\_gb}), hạn bảo hành (\texttt{warranty}) và trạng thái vận hành \texttt{status}[cite: 2]. Một Rack chứa nhiều Server (\texttt{rack\_id} là FK)[cite: 2].
+    \item \textbf{Khối lượng Công việc (Workload):} Các tiến trình hoặc ứng dụng dạng Docker Container chạy trên máy chủ, quản lý các thông tin \texttt{workload\_id}, \texttt{workload\_name}, \texttt{container\_id}, loại dịch vụ \texttt{service\_type} và trạng thái \texttt{status}[cite: 2]. Một Server thực thi nhiều Workload (\texttt{server\_id} là FK)[cite: 2].
+\end{itemize}
 
-\begin{enumerate}[label=\textbf{BR-INF-\arabic*}., leftmargin=3em]
-    \item \textbf{Spatial AR Positioning:} Ánh xạ mã định danh QR/ArUco Marker gắn trên tủ Rack với tọa độ không gian tĩnh, cho phép ứng dụng AR truy vấn và hiển thị mô hình overlay thông tin các máy chủ bên trong.
-    \item \textbf{U-Space Capacity Management:} Kiểm soát không gian vật lý khả dụng ($1\text{U} - 42\text{U}$) trên từng tủ Rack, ngăn ngừa việc xung đột hoặc ghi đè vị trí khi lắp đặt phần cứng mới.
-    \item \textbf{Workload Mapping:} Theo dõi danh sách các máy ảo (VM), Docker container và dịch vụ đang vận hành trên từng máy chủ để đánh giá vùng ảnh hưởng khi xảy ra sự cố bảo trì.
-\end{enumerate}
-
-\subsection{Bảng Mô tả Thuộc tính \& Thực thể Phân hệ Hạ tầng}
-Từ khảo sát nghiệp vụ hạ tầng, các đối tượng dữ liệu được tổng hợp chi tiết trong bảng dưới đây:
-
-\vspace{0.3em}
-\begin{longtable}{|>{\raggedright\arraybackslash}p{2.8cm}|>{\raggedright\arraybackslash}p{5.2cm}|>{\raggedright\arraybackslash}p{6.8cm}|}
-\hline
-\textbf{Thực thể} & \textbf{Thuộc tính Khảo sát} & \textbf{Mô tả Nghiệp vụ \& Ràng buộc} \\
-\hline
-\endfirsthead
-\hline
-\textbf{Thực thể} & \textbf{Thuộc tính Khảo sát} & \textbf{Mô tả Nghiệp vụ \& Ràng buộc} \\
-\hline
-\endhead
-\hline
-\endfoot
-\texttt{Sites} & \texttt{SiteID}, \texttt{SiteName}, \texttt{Location}, \texttt{Description} & Quản lý vị trí địa lý tổng thể của trung tâm dữ liệu. Khóa chính \texttt{SiteID}. \\
-\hline
-\texttt{Rooms} & \texttt{RoomID}, \texttt{SiteID}, \texttt{RoomName}, \texttt{FloorNumber} & Quản lý không gian chứa Rack. Liên kết $N-1$ với \texttt{Sites} qua khóa ngoại \texttt{SiteID}. \\
-\hline
-\texttt{Racks} & \texttt{RackID}, \texttt{RackName}, \texttt{RoomID}, \texttt{TotalCapacityU}, \texttt{QRCodeMarker} & Định vị tủ Rack vật lý. Trường \texttt{QRCodeMarker} phục vụ ứng dụng AR nhận diện không gian. \\
-\hline
-\texttt{Servers} & \texttt{ServerID}, \texttt{RackID}, \texttt{ServerName}, \texttt{UPositionStart}, \texttt{UHeight}, \texttt{IPAddress}, \texttt{MACAddress} & Máy chủ vật lý trong Rack. Ràng buộc vị trí từ $1\text{U}-42\text{U}$ không được chồng lấp không gian với Server khác. \\
-\hline
-\texttt{Workloads} & \texttt{WorkloadID}, \texttt{ServerID}, \texttt{WorkloadName}, \texttt{WorkloadType}, \texttt{Status} & Các ứng dụng, VM hoặc Container vận hành trên Server. Xác định mức độ ảnh hưởng khi server gặp sự cố. \\
-\hline
-\end{longtable}
+\subsection{Nghiệp vụ Tương tác AR và Mã không gian}
+\begin{itemize}[leftmargin=2em]
+    \item Mỗi Server vật lý được gán một mã nhận diện không gian \texttt{qr\_code\_stamp} (dạng QR Code hoặc ArUco Marker) trực tiếp trên khung máy[cite: 2].
+    \item Khi Kỹ thuật viên dùng ứng dụng Mobile AR quét mã \texttt{qr\_code\_stamp}, ứng dụng gửi truy vấn tra cứu thiết bị và hiển thị thông tin trực tiếp dạng phủ hình ảnh (AR Overlay)[cite: 2].
+\end{itemize}
