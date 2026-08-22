@@ -1,0 +1,37 @@
+\section{Khảo sát Nghiệp vụ Phân hệ Quản lý Sự cố, Bảo trì \& Tích hợp AR}
+\label{sec:nghiep_vu_bao_tri}
+
+Phân hệ đóng vai trò cầu nối giữa các cảnh báo kỹ thuật tự động và quy trình xử lý thực tế của con người, kết hợp chặt chẽ với ứng dụng di động AR để tối ưu hóa thao tác bảo trì và ghi nhận nhật ký tại hiện trường.
+
+\subsection{Quy trình Luồng Phiếu Bảo trì (Ticket Lifecycle)}
+Luồng xử lý từ sự cố tự động đến khi đóng phiếu bảo trì tuân theo các bước nghiêm ngặt:
+
+\begin{enumerate}[label=\textbf{BR-MNT-\arabic*}., leftmargin=3em]
+    \item \textbf{Incident Aggregation:} Tự động gom nhiều cảnh báo trùng lặp phát sinh liên tục trên cùng một thiết bị thành một sự cố (\texttt{Incident}) duy nhất nhằm chống bão cảnh báo (Alert Storm).
+    \item \textbf{Ticket Creation \& Assignment:} Vận hành viên (Operator) duyệt sự cố, khởi tạo phiếu bảo trì (\texttt{MaintenanceTicket}) và phân công cho Kỹ thuật viên (Technician).
+    \item \textbf{AR Maintenance Execution:} Kỹ thuật viên quét mã QR trên Rack, xem danh sách phiếu đang mở đè lên vị trí máy chủ hỏng và cập nhật kết quả xử lý vào nhật ký (\texttt{MaintenanceLogs}).
+    \item \textbf{Closure Verification:} Phiếu sau khi hoàn thành chuyển sang trạng thái \textit{Pending Approval} để Operator kiểm tra trước khi chuyển thành \textit{Closed}.
+\end{enumerate}
+
+\subsection{Bảng Mô tả Thuộc tính \& Thực thể Phân hệ Bảo trì}
+Danh mục thực thể dữ liệu quản lý sự cố và vòng đời bảo trì được trình bày chi tiết trong bảng dưới đây:
+
+\vspace{0.3em}
+\begin{longtable}{|p{3.5cm}|p{4.5cm}|p{7.5cm}|}
+\hline
+\textbf{Thực thể} & \textbf{Thuộc tính Khảo sát} & \textbf{Mô tả Nghiệp vụ \& Ràng buộc} \\
+\hline
+\endfirsthead
+\hline
+\textbf{Thực thể} & \textbf{Thuộc tính Khảo sát} & \textbf{Mô tả Nghiệp vụ \& Ràng buộc} \\
+\hline
+\endhead
+\hline
+\endfoot
+\texttt{Incidents} & \texttt{IncidentID}, \texttt{ServerID}, \texttt{Title}, \texttt{Priority}, \texttt{Status}, \texttt{OpenedAt} & Quản lý thông tin sự cố tổng thể. Mức độ ưu tiên (\textit{Low, Medium, High, Urgent}) quy định thời hạn xử lý SLA. \\
+\hline
+\texttt{MaintenanceTickets} & \texttt{TicketID}, \texttt{IncidentID}, \texttt{AssignedToUser}, \texttt{CreatedByOperator}, \texttt{ScheduledDate}, \texttt{TicketStatus} & Phiếu phân công công tác. Chuyển trạng thái nghiêm ngặt: \textit{Open} $\rightarrow$ \textit{In-Progress} $\rightarrow$ \textit{Pending Approval} $\rightarrow$ \textit{Closed}. \\
+\hline
+\texttt{MaintenanceLogs} & \texttt{LogID}, \texttt{TicketID}, \texttt{ActionTaken}, \texttt{ReplacedParts}, \texttt{LogTimestamp} & Nhật ký ghi nhận chi tiết các thao tác sửa chữa và linh kiện thay thế tại chỗ do Kỹ thuật viên cập nhật qua AR. \\
+\hline
+\end{longtable}
