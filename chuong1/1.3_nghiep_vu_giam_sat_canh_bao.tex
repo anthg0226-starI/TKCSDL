@@ -1,1 +1,37 @@
 % Phuong
+\section{Khảo sát Nghiệp vụ Phân hệ Giám sát Telemetry \& Cảnh báo}
+\label{sec:nghiep_vu_giam_sat}
+
+Phân hệ Giám sát Telemetry đảm nhận chức năng thu thập, lưu trữ dữ liệu thời gian thực (Time-Series Data) từ các máy chủ và thiết bị đo lường, đồng thời tự động đối chiếu với các ngưỡng an toàn để phát hiện và khởi tạo cảnh báo kịp thời.
+
+\subsection{Luồng Nghiệp vụ Xử lý Cảnh báo}
+Quy trình xử lý dữ liệu đo lường và tạo cảnh báo tự động bao gồm các bước:
+
+\begin{enumerate}[label=\textbf{BR-MON-\arabic*}., leftmargin=3em]
+    \item \textbf{Telemetry Streaming:} Dữ liệu CPU, RAM, Nhiệt độ và Công suất tiêu thụ được đẩy về hệ thống trung tâm theo chu kỳ cấu hình (mặc định 5s).
+    \item \textbf{Threshold Evaluation \& Alert Triggering:} Tự động đối chiếu thông số thu thập được với \texttt{AlertThresholds}. Nếu chỉ số vượt ngưỡng cảnh báo (Warning/Critical), một bản ghi cảnh báo mới sẽ tự động được ghi nhận.
+    \item \textbf{Real-time AR Synchronization:} Các cảnh báo mức độ nghiêm trọng (Critical) sẽ lập tức được đẩy qua kết nối thời gian thực để hiển thị nổi bật trên giao diện AR của kỹ thuật viên.
+\end{enumerate}
+
+\subsection{Bảng Mô tả Thuộc tính \& Thực thể Phân hệ Giám sát}
+Các thực thể phục vụ cho công tác thu thập telemetry và quản lý cảnh báo được tổng hợp như sau:
+
+\vspace{0.3em}
+\begin{longtable}{|p{3.5cm}|p{4.5cm}|p{7.5cm}|}
+\hline
+\textbf{Thực thể} & \textbf{Thuộc tính Khảo sát} & \textbf{Mô tả Nghiệp vụ \& Ràng buộc} \\
+\hline
+\endfirsthead
+\hline
+\textbf{Thực thể} & \textbf{Thuộc tính Khảo sát} & \textbf{Mô tả Nghiệp vụ \& Ràng buộc} \\
+\hline
+\endhead
+\hline
+\endfoot
+\texttt{TelemetryMetrics} & \texttt{MetricID}, \texttt{ServerID}, \texttt{Timestamp}, \texttt{CPUUsage}, \texttt{RAMUsage}, \texttt{Temperature}, \texttt{PowerConsumption} & Dữ liệu chuỗi thời gian (Time-Series). Yêu cầu tần suất ghi lớn và chiến lược đánh chỉ mục (Index) tối ưu theo \texttt{Timestamp}. \\
+\hline
+\texttt{AlertThresholds} & \texttt{ThresholdID}, \texttt{MetricType}, \texttt{WarningLevel}, \texttt{CriticalLevel}, \texttt{AppliedScope} & Quy định ranh giới cảnh báo cho từng loại chỉ số (Ví dụ: Nhiệt độ $> 75^\circ\text{C} \rightarrow$ Warning, $> 85^\circ\text{C} \rightarrow$ Critical). \\
+\hline
+\texttt{Alerts} & \texttt{AlertID}, \texttt{ServerID}, \texttt{ThresholdID}, \texttt{Severity}, \texttt{AlertMessage}, \texttt{CreatedAt}, \texttt{Status} & Lưu trữ bản ghi cảnh báo bất thường. Trạng thái gồm có: \textit{New}, \textit{Processing}, \textit{Resolved}. \\
+\hline
+\end{longtable}
