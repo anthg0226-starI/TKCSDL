@@ -1,22 +1,22 @@
 \section{Nghiệp vụ Quản lý Hạ tầng và Workload}
-Hạ tầng của hệ thống AR-IMMS được tổ chức theo mô hình cây phân cấp nghiêm ngặt nhằm liên kết chính xác không gian vật lý của Mini Data Center với tài sản kỹ thuật số[cite: 2].
+Hạ tầng của hệ thống AR-IMMS được tổ chức theo mô hình cây phân cấp nghiêm ngặt nhằm liên kết chính xác không gian vật lý của Mini Data Center với tài sản kỹ thuật số.
 
 \subsection{Cấu trúc Cây Phân cấp Hạ tầng}
-Hệ thống tổ chức dữ liệu theo chuỗi quan hệ phụ thuộc $1:N$[cite: 2]:
+Hệ thống tổ chức dữ liệu theo chuỗi quan hệ phụ thuộc $1:N$
 \begin{equation*}
 \text{Site} \longrightarrow \text{Room} \longrightarrow \text{Rack} \longrightarrow \text{Server} \longrightarrow \text{Workload}
 \end{equation*}
 
 \begin{itemize}[leftmargin=2em]
-    \item \textbf{Trung tâm Dữ liệu (Site):} Đại diện cho địa điểm triển khai Mini Data Center, quản lý thông tin định danh \texttt{site\_id}, tên trung tâm \texttt{site\_name}, địa chỉ vị trí \texttt{location} và mô tả \texttt{description}[cite: 2].
-    \item \textbf{Phòng Máy chủ (Room):} Không gian chứa các tủ Rack thuộc một Site[cite: 2]. Mỗi Room lưu trữ \texttt{room\_id}, tên phòng \texttt{room\_name} và vị trí tầng \texttt{floor\_level}[cite: 2]. Một Site chứa nhiều Room (\texttt{site\_id} là FK)[cite: 2].
-    \item \textbf{Tủ Rack (Rack):} Đơn vị lưu trữ đặt trong Room, định danh bởi \texttt{rack\_id}, \texttt{rack\_name}, sức chứa tối đa \texttt{max\_unit} và tọa độ \texttt{location\_in\_room}[cite: 2]. Một Room chứa nhiều Rack (\texttt{room\_id} là FK)[cite: 2].
-    \item \textbf{Máy chủ Vật lý / Node (Server):} Thiết bị phần cứng lắp đặt tại vị trí U (\texttt{u\_position}) trong tủ Rack[cite: 2]. Mỗi máy chủ lưu trữ \texttt{server\_id}, tên node \texttt{server\_name}, \texttt{ip\_address}, mã nhãn tài sản \texttt{asset\_tag}, số \texttt{serial\_number}, thông số cấu hình (\texttt{cpu\_model}, \texttt{ram\_total\_gb}, \texttt{storage\_total\_gb}), hạn bảo hành (\texttt{warranty}) và trạng thái vận hành \texttt{status}[cite: 2]. Một Rack chứa nhiều Server (\texttt{rack\_id} là FK)[cite: 2].
-    \item \textbf{Khối lượng Công việc (Workload):} Các tiến trình hoặc ứng dụng dạng Docker Container chạy trên máy chủ, quản lý các thông tin \texttt{workload\_id}, \texttt{workload\_name}, \texttt{container\_id}, loại dịch vụ \texttt{service\_type} và trạng thái \texttt{status}[cite: 2]. Một Server thực thi nhiều Workload (\texttt{server\_id} là FK)[cite: 2].
+    \item \textbf{Trung tâm Dữ liệu (Site):} Đại diện cho địa điểm triển khai Mini Data Center, quản lý thông tin định danh \texttt{site\_id}, tên trung tâm \texttt{site\_name}, địa chỉ vị trí \texttt{location} và mô tả \texttt{description}.
+    \item \textbf{Phòng Máy chủ (Room):} Không gian chứa các tủ Rack thuộc một Site. Mỗi Room lưu trữ \texttt{room\_id}, tên phòng \texttt{room\_name} và vị trí tầng \texttt{floor\_level}. Một Site chứa nhiều Room (\texttt{site\_id} là FK).
+    \item \textbf{Tủ Rack (Rack):} Đơn vị lưu trữ đặt trong Room, định danh bởi \texttt{rack\_id}, \texttt{rack\_name}, sức chứa tối đa \texttt{max\_unit} và tọa độ \texttt{location\_in\_room}. Một Room chứa nhiều Rack (\texttt{room\_id} là FK).
+    \item \textbf{Máy chủ Vật lý / Node (Server):} Thiết bị phần cứng lắp đặt tại vị trí U (\texttt{u\_position}) trong tủ Rack. Mỗi máy chủ lưu trữ \texttt{server\_id}, tên node \texttt{server\_name}, \texttt{ip\_address}, mã nhãn tài sản \texttt{asset\_tag}, số \texttt{serial\_number}, thông số cấu hình (\texttt{cpu\_model}, \texttt{ram\_total\_gb}, \texttt{storage\_total\_gb}), hạn bảo hành (\texttt{warranty}) và trạng thái vận hành \texttt{status}. Một Rack chứa nhiều Server (\texttt{rack\_id} là FK).
+    \item \textbf{Khối lượng Công việc (Workload):} Các tiến trình hoặc ứng dụng dạng Docker Container chạy trên máy chủ, quản lý các thông tin \texttt{workload\_id}, \texttt{workload\_name}, \texttt{container\_id}, loại dịch vụ \texttt{service\_type} và trạng thái \texttt{status}. Một Server thực thi nhiều Workload (\texttt{server\_id} là FK).
 \end{itemize}
 
 \subsection{Nghiệp vụ Tương tác AR và Mã không gian}
 \begin{itemize}[leftmargin=2em]
-    \item Mỗi Server vật lý được gán một mã nhận diện không gian \texttt{qr\_code\_stamp} (dạng QR Code hoặc ArUco Marker) trực tiếp trên khung máy[cite: 2].
-    \item Khi Kỹ thuật viên dùng ứng dụng Mobile AR quét mã \texttt{qr\_code\_stamp}, ứng dụng gửi truy vấn tra cứu thiết bị và hiển thị thông tin trực tiếp dạng phủ hình ảnh (AR Overlay)[cite: 2].
+    \item Mỗi Server vật lý được gán một mã nhận diện không gian \texttt{qr\_code\_stamp} (dạng QR Code hoặc ArUco Marker) trực tiếp trên khung máy.
+    \item Khi Kỹ thuật viên dùng ứng dụng Mobile AR quét mã \texttt{qr\_code\_stamp}, ứng dụng gửi truy vấn tra cứu thiết bị và hiển thị thông tin trực tiếp dạng phủ hình ảnh (AR Overlay).
 \end{itemize}
