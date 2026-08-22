@@ -17,7 +17,7 @@ Luồng xử lý từ sự cố tự động đến khi đóng phiếu bảo tr�
 Danh mục thực thể dữ liệu quản lý sự cố và vòng đời bảo trì được trình bày chi tiết trong bảng dưới đây:
 
 \vspace{0.3em}
-\begin{longtable}{|p{3.5cm}|p{4.5cm}|p{7.5cm}|}
+\begin{longtable}{|p{3.8cm}|p{4.2cm}|p{6.8cm}|}
 \hline
 \textbf{Thực thể} & \textbf{Thuộc tính Khảo sát} & \textbf{Mô tả Nghiệp vụ \& Ràng buộc} \\
 \hline
@@ -30,7 +30,7 @@ Danh mục thực thể dữ liệu quản lý sự cố và vòng đời bảo 
 \endfoot
 \texttt{Incidents} & \texttt{IncidentID}, \texttt{ServerID}, \texttt{Title}, \texttt{Priority}, \texttt{Status}, \texttt{OpenedAt} & Quản lý thông tin sự cố tổng thể. Mức độ ưu tiên (\textit{Low, Medium, High, Urgent}) quy định thời hạn xử lý SLA. \\
 \hline
-\texttt{MaintenanceTickets} & \texttt{TicketID}, \texttt{IncidentID}, \texttt{AssignedToUser}, \texttt{CreatedByOperator}, \texttt{ScheduledDate}, \texttt{TicketStatus} & Phiếu phân công công tác. Chuyển trạng thái nghiêm ngặt: \textit{Open} $\rightarrow$ \textit{In-Progress} $\rightarrow$ \textit{Pending Approval} $\rightarrow$ \textit{Closed}. \\
+\texttt{Maintenance}\discretionary{}{}{}\texttt{Tickets} & \texttt{TicketID}, \texttt{IncidentID}, \texttt{AssignedToUser}, \texttt{CreatedByOperator}, \texttt{ScheduledDate}, \texttt{TicketStatus} & Phiếu phân công công tác. Chuyển trạng thái nghiêm ngặt: \textit{Open} $\rightarrow$ \textit{In-Progress} $\rightarrow$ \textit{Pending Approval} $\rightarrow$ \textit{Closed}. \\
 \hline
 \texttt{MaintenanceLogs} & \texttt{LogID}, \texttt{TicketID}, \texttt{ActionTaken}, \texttt{ReplacedParts}, \texttt{LogTimestamp} & Nhật ký ghi nhận chi tiết các thao tác sửa chữa và linh kiện thay thế tại chỗ do Kỹ thuật viên cập nhật qua AR. \\
 \hline
