@@ -8,15 +8,15 @@ Hệ thống tổ chức dữ liệu theo chuỗi quan hệ phụ thuộc $1:N$
 \end{equation*}
 
 \begin{itemize}[leftmargin=2em]
-    \item \textbf{Trung tâm Dữ liệu (Site):} Đại diện cho địa điểm triển khai Mini Data Center, quản lý thông tin định danh \texttt{site\_id}, tên trung tâm \texttt{site\_name}, địa chỉ vị trí \texttt{location} và mô tả \texttt{description}.
-    \item \textbf{Phòng Máy chủ (Room):} Không gian chứa các tủ Rack thuộc một Site. Mỗi Room lưu trữ \texttt{room\_id}, tên phòng \texttt{room\_name} và vị trí tầng \texttt{floor\_level}. Một Site chứa nhiều Room (\texttt{site\_id} là FK).
-    \item \textbf{Tủ Rack (Rack):} Đơn vị lưu trữ đặt trong Room, định danh bởi \texttt{rack\_id}, \texttt{rack\_name}, sức chứa tối đa \texttt{max\_unit} và tọa độ \texttt{location\_in\_room}. Một Room chứa nhiều Rack (\texttt{room\_id} là FK).
-    \item \textbf{Máy chủ Vật lý / Node (Server):} Thiết bị phần cứng lắp đặt tại vị trí U (\texttt{u\_position}) trong tủ Rack. Mỗi máy chủ lưu trữ \texttt{server\_id}, tên node \texttt{server\_name}, \texttt{ip\_address}, mã nhãn tài sản \texttt{asset\_tag}, số \texttt{serial\_number}, thông số cấu hình (\texttt{cpu\_model}, \texttt{ram\_total\_gb}, \texttt{storage\_total\_gb}), hạn bảo hành (\texttt{warranty}) và trạng thái vận hành \texttt{status}. Một Rack chứa nhiều Server (\texttt{rack\_id} là FK).
-    \item \textbf{Khối lượng Công việc (Workload):} Các tiến trình hoặc ứng dụng dạng Docker Container chạy trên máy chủ, quản lý các thông tin \texttt{workload\_id}, \texttt{workload\_name}, \texttt{container\_id}, loại dịch vụ \texttt{service\_type} và trạng thái \texttt{status}. Một Server thực thi nhiều Workload (\texttt{server\_id} là FK).
+    \item \textbf{Trung tâm Dữ liệu (\texttt{Site}):} Đại diện cho địa điểm triển khai Mini Data Center, quản lý thông tin định danh \texttt{SiteID}, tên trung tâm \texttt{SiteName}, địa chỉ vị trí \texttt{Location} và mô tả \texttt{Description}.
+    \item \textbf{Phòng Máy chủ (\texttt{Room}):} Không gian chứa các tủ Rack thuộc một Site. Mỗi Room lưu trữ \texttt{RoomID}, tên phòng \texttt{RoomName} và vị trí tầng \texttt{FloorLevel}. Một Site chứa nhiều Room (\texttt{SiteID} là khóa ngoại).
+    \item \textbf{Tủ Rack (\texttt{Rack}):} Đơn vị lưu trữ đặt trong Room, định danh bởi \texttt{RackID}, \texttt{RackName}, sức chứa tối đa \texttt{MaxUnit} và tọa độ \texttt{LocationInRoom}. Một Room chứa nhiều Rack (\texttt{RoomID} là khóa ngoại).
+    \item \textbf{Máy chủ Vật lý / Node (\texttt{Server}):} Thiết bị phần cứng lắp đặt tại vị trí U (\texttt{UPosition}) trong tủ Rack. Mỗi máy chủ lưu trữ \texttt{ServerID}, tên máy chủ \texttt{ServerName}/\texttt{Hostname}, địa chỉ quản lý \texttt{IPAddress}, mã nhận diện không gian \texttt{QRCodeStamp} (mã QR/ArUco Marker để ứng dụng AR quét thực địa) và trạng thái vận hành \texttt{Status}. Một Rack chứa nhiều Server (\texttt{RackID} là khóa ngoại).
+    \item \textbf{Khối lượng Công việc (\texttt{Workload}):} Các tiến trình hoặc ứng dụng dạng Docker Container chạy trên máy chủ, quản lý các thông tin \texttt{WorkloadID}, tên dịch vụ \texttt{WorkloadName}, mã định danh container \texttt{ContainerID}, loại dịch vụ \texttt{ServiceType} và trạng thái thực thi \texttt{Status}. Một Server thực thi nhiều Workload (\texttt{ServerID} là khóa ngoại).
 \end{itemize}
 
 \subsection{Nghiệp vụ Tương tác AR và Mã không gian}
 \begin{itemize}[leftmargin=2em]
-    \item Mỗi Server vật lý được gán một mã nhận diện không gian \texttt{qr\_code\_stamp} (dạng QR Code hoặc ArUco Marker) trực tiếp trên khung máy.
-    \item Khi Kỹ thuật viên dùng ứng dụng Mobile AR quét mã \texttt{qr\_code\_stamp}, ứng dụng gửi truy vấn tra cứu thiết bị và hiển thị thông tin trực tiếp dạng phủ hình ảnh (AR Overlay).
+    \item Mỗi Server vật lý được gán một mã nhận diện không gian \texttt{QRCodeStamp} (dạng QR Code hoặc ArUco Marker) trực tiếp trên khung máy.
+    \item Khi Kỹ thuật viên dùng ứng dụng Mobile AR quét mã \texttt{QRCodeStamp}, ứng dụng gửi truy vấn tra cứu thiết bị và hiển thị thông tin trực tiếp dạng phủ hình ảnh (AR Overlay).
 \end{itemize}
