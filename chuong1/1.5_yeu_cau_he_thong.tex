@@ -1,58 +1,66 @@
 % Hiệu
 \section{Yêu cầu Hệ thống}
-Dựa trên kết quả khảo sát nghiệp vụ ở các mục trước, phần này tổng hợp và phân loại các yêu cầu hệ thống cho nền tảng AR-IMMS thành hai nhóm chính: \textbf{Yêu cầu chức năng} (Functional Requirements) và \textbf{Yêu cầu phi chức năng} (Non-Functional Requirements). Các yêu cầu này là cơ sở trực tiếp để xác định các thực thể dữ liệu, quan hệ và ràng buộc trong thiết kế Cơ sở Dữ liệu ở các chương tiếp theo.
+Trên cơ sở kết quả khảo sát nghiệp vụ tại Mục 1.2 (Quản lý hạ tầng \& Workload), Mục 1.3 (Giám sát \& Cảnh báo) và Mục 1.4 (Sự cố \& Phiếu bảo trì), phần này hệ thống hóa toàn bộ yêu cầu của nền tảng AR-IMMS thành ba nhóm:
+\begin{itemize}[leftmargin=2em]
+    \item \textbf{Yêu cầu chức năng} (Functional Requirements) -- phân loại theo vai trò tác nhân.
+    \item \textbf{Yêu cầu phi chức năng} (Non-Functional Requirements) -- các ràng buộc chất lượng hệ thống.
+    \item \textbf{Quy tắc nghiệp vụ trọng yếu} -- các ràng buộc logic ảnh hưởng trực tiếp đến thiết kế CSDL.
+\end{itemize}
+Kết quả phân tích ở mục này là đầu vào trực tiếp để xác định các thực thể, thuộc tính, quan hệ và ràng buộc toàn vẹn dữ liệu trong Chương 2.
 
 %% =============================================
 %% 1.5.1 YÊU CẦU CHỨC NĂNG
 %% =============================================
 \subsection{Yêu cầu chức năng}
-Hệ thống AR-IMMS phục vụ bốn nhóm tác nhân chính: \textit{Quản trị viên Hệ thống} (System Administrator), \textit{Vận hành viên} (System Operator), \textit{Kỹ thuật viên} (Technician) và \textit{Hệ thống Giám sát \& Cảnh báo Tự động} (Automated Monitoring \& Alerting System). Dưới đây là danh sách yêu cầu chức năng phân theo từng vai trò.
+Hệ thống AR-IMMS phục vụ bốn nhóm tác nhân: \textit{Quản trị viên Hệ thống} (System Administrator), \textit{Vận hành viên} (System Operator), \textit{Kỹ thuật viên hiện trường} (Technician) và \textit{Hệ thống Giám sát \& Cảnh báo Tự động} (Automated Monitoring \& Alerting System). Mỗi nhóm tác nhân tương tác với các phân hệ dữ liệu khác nhau; việc tách biệt rõ ràng giúp xác định phạm vi truy cập và luồng dữ liệu phục vụ thiết kế mô hình RBAC trong CSDL.
 
 % ---- 1.5.1.1 Quản trị viên Hệ thống ----
 \subsubsection{Quản trị viên Hệ thống (System Administrator)}
 \begin{enumerate}[label=\textbf{FA-\arabic*}., leftmargin=2.5em]
-    \item \textbf{Quản lý tài khoản người dùng:} Tạo mới, cập nhật thông tin, vô hiệu hóa và gán vai trò (Administrator, Operator, Technician) cho các tài khoản người dùng trên hệ thống.
-    \item \textbf{Cấu hình thiết lập hệ thống:} Thiết lập và chỉnh sửa các thông số cấu hình toàn hệ thống (system-wide settings) bao gồm chu kỳ thu thập dữ liệu, ngưỡng cảnh báo mặc định, chính sách bảo mật và các tham số vận hành khác.
-    \item \textbf{Giám sát tổng quan sức khỏe hệ thống:} Xem các chỉ số tổng hợp (aggregated indicators) về tình trạng hoạt động của toàn bộ hệ thống, bao gồm: tính khả dụng của dịch vụ (service availability), trạng thái kết nối của bộ thu thập dữ liệu (data collector connectivity) và lưu lượng cảnh báo (alert volume) trên tất cả các thành phần tích hợp.
-    \item \textbf{Quản lý môi trường Mini Data Center:} Quản lý cấu hình các môi trường Mini Data Center thử nghiệm, bao gồm đăng ký site, phòng máy, và các thông số hệ thống liên quan.
-    \item \textbf{Truy vấn nhật ký kiểm toán:} Xem và tra cứu nhật ký kiểm toán (audit log) ghi lại toàn bộ lịch sử thay đổi cấu hình, các hành động quản trị, và các sự kiện quan trọng trên hệ thống.
+    \item \textbf{Quản lý tài khoản và phân quyền:} Tạo mới, cập nhật thông tin, vô hiệu hóa tài khoản người dùng và gán vai trò (\texttt{Administrator}, \texttt{Operator}, \texttt{Technician}). Đồng thời thiết lập các thông số cấu hình toàn hệ thống (system-wide platform settings).
+    \item \textbf{Giám sát tổng quan sức khỏe hệ thống:} Xem các chỉ số sức khỏe tổng hợp (aggregated health indicators) trên tất cả các thành phần tích hợp, bao gồm: tính khả dụng dịch vụ (service availability), trạng thái kết nối bộ thu thập dữ liệu (data collector connectivity) và lưu lượng cảnh báo (alert volume).
+    \item \textbf{Quản lý môi trường Mini Data Center:} Quản lý cấu hình các môi trường Mini Data Center thử nghiệm và các tham số hệ thống liên quan.
+    \item \textbf{Truy vấn nhật ký kiểm toán:} Xem nhật ký kiểm toán (audit log) và lịch sử thay đổi cấu hình (configuration change history) xuyên suốt toàn bộ hệ thống.
 \end{enumerate}
 
 % ---- 1.5.1.2 Vận hành viên ----
 \subsubsection{Vận hành viên (System Operator)}
 \begin{enumerate}[label=\textbf{FO-\arabic*}., leftmargin=2.5em]
-    \item \textbf{Quản lý tài sản hạ tầng:} Đăng ký, cập nhật và quản lý thông tin các tủ Rack, máy chủ (Server/Node) và các khối tải công việc (Workload/Container) tương ứng theo hệ thống phân cấp: Site $\rightarrow$ Room $\rightarrow$ Rack $\rightarrow$ Node $\rightarrow$ Workload.
-    \item \textbf{Liên kết mã đánh dấu không gian (Spatial Marker):} Gán mã định danh QR/ArUco Marker cho một máy chủ hoặc node đã đăng ký trong quá trình tiếp nhận thiết bị (onboarding). Cho phép cập nhật liên kết khi phần cứng được di chuyển hoặc thay thế.
-    \item \textbf{Giám sát trạng thái vận hành:} Theo dõi trạng thái vận hành theo thời gian thực (real-time) và dữ liệu lịch sử (historical) của toàn bộ hạ tầng Mini Data Center, bao gồm mức sử dụng CPU, RAM, ổ đĩa, lưu lượng mạng và trạng thái container.
-    \item \textbf{Tương tác Digital Twin:} Xem và tương tác với mô hình Digital Twin để nhận diện trạng thái, vị trí và mối quan hệ phân cấp giữa các tủ Rack, máy chủ và dịch vụ đang chạy.
-    \item \textbf{Cấu hình ngưỡng cảnh báo:} Thiết lập các ngưỡng (threshold) cho từng chỉ số giám sát, rà soát các điều kiện bất thường và xác nhận (acknowledge) các cảnh báo đang hoạt động.
-    \item \textbf{Quản lý sự cố và phiếu bảo trì:} Xác nhận cảnh báo đang hoạt động; khi cần xử lý, tạo phiếu sự cố (incident) hoặc phiếu bảo trì (maintenance ticket) tham chiếu đến cảnh báo gốc. Gán, theo dõi phiếu công việc, lập báo cáo vận hành và quản lý lịch sử dịch vụ.
-    \item \textbf{Phân tích xu hướng và báo cáo:} Xem các báo cáo xu hướng lịch sử (historical trend reports), các chỉ số quy hoạch dung lượng (capacity planning metrics) và phân tích PUE/tiêu thụ điện năng, được nhóm theo site, phòng máy, tủ rack và node.
-    \item \textbf{Quản lý thông số kỹ thuật thiết bị:} Ghi nhận và cập nhật thông số kỹ thuật phần cứng (hardware specifications), thông tin bảo hành (warranty) và lịch sử bảo trì (maintenance history) cho các tài sản đã đăng ký.
+    \item \textbf{Quản lý tài sản hạ tầng:} Đăng ký, cập nhật và quản lý thông tin tủ Rack, máy chủ (Server/Node) và các khối tải công việc (Workload/Container) liên quan theo hệ phân cấp Site $\rightarrow$ Room $\rightarrow$ Rack $\rightarrow$ Node $\rightarrow$ Workload.
+    \item \textbf{Liên kết mã nhận diện không gian:} Gán mã QR/ArUco Marker vật lý cho một máy chủ hoặc node đã đăng ký trong quá trình tiếp nhận thiết bị (onboarding). Cập nhật liên kết khi phần cứng được di chuyển hoặc thay thế.
+    \item \textbf{Giám sát trạng thái vận hành:} Theo dõi trạng thái vận hành thời gian thực (real-time) và dữ liệu lịch sử (historical) của toàn bộ hạ tầng Mini Data Center.
+    \item \textbf{Tương tác Digital Twin:} Xem mô hình Digital Twin để nhận diện trạng thái, vị trí và mối quan hệ phân cấp giữa các tủ Rack, máy chủ và dịch vụ đang chạy.
+    \item \textbf{Cấu hình ngưỡng và xác nhận cảnh báo:} Thiết lập ngưỡng cảnh báo (alert threshold) cho từng loại chỉ số, rà soát các điều kiện bất thường (abnormal conditions) và xác nhận (acknowledge) các cảnh báo đang hoạt động.
+    \item \textbf{Quản lý sự cố và phiếu bảo trì:} Xác nhận cảnh báo; khi cần xử lý, tạo phiếu sự cố (incident) hoặc phiếu bảo trì (maintenance ticket) tham chiếu đến cảnh báo gốc (originating alert). Gán và theo dõi phiếu công việc, lập báo cáo vận hành và quản lý lịch sử dịch vụ.
+    \item \textbf{Phân tích xu hướng và báo cáo:} Xem báo cáo xu hướng lịch sử (historical trend reports), chỉ số quy hoạch dung lượng (capacity planning metrics) và phân tích PUE/tiêu thụ điện năng, được nhóm theo site, phòng máy, tủ rack và node.
+    \item \textbf{Quản lý thông số và bảo hành thiết bị:} Ghi nhận và cập nhật thông số kỹ thuật phần cứng (hardware specifications), thông tin bảo hành (warranty information) và lịch sử bảo trì (maintenance history) cho các tài sản đã đăng ký.
 \end{enumerate}
 
 % ---- 1.5.1.3 Kỹ thuật viên ----
-\subsubsection{Kỹ thuật viên (Technician)}
+\subsubsection{Kỹ thuật viên hiện trường (Technician)}
 \begin{enumerate}[label=\textbf{FT-\arabic*}., leftmargin=2.5em]
-    \item \textbf{Tiếp nhận phiếu công việc:} Xem danh sách các phiếu sự cố hoặc phiếu bảo trì được giao, nhận diện tủ Rack và máy chủ cần kiểm tra.
-    \item \textbf{Nhận diện thiết bị bằng AR:} Sử dụng ứng dụng AR trên thiết bị di động để quét mã QR/ArUco Marker gắn trên phần cứng, từ đó nhận diện thiết bị và truy cập thông tin vận hành theo ngữ cảnh (contextual operational information) được hiển thị trực tiếp trên hình ảnh camera.
-    \item \textbf{Xem thông tin chi tiết thiết bị:} Truy cập trạng thái máy chủ, dữ liệu giám sát thời gian thực (telemetry), cảnh báo đang hoạt động, thông tin chẩn đoán (diagnostic information) và danh sách các workload/dịch vụ liên quan.
-    \item \textbf{Cập nhật tiến trình xử lý:} Xác nhận tiếp nhận công việc, cập nhật trạng thái xử lý, ghi nhận ghi chú điều tra (investigation notes), nguyên nhân xác định (identified causes) và các biện pháp khắc phục (corrective actions).
-    \item \textbf{Hoàn tất và đóng phiếu:} Ghi nhận kết quả bảo trì, xem lại lịch sử dịch vụ của thiết bị, đánh dấu sự cố đã giải quyết (resolved) và gửi yêu cầu đóng phiếu (ticket closure request) để Vận hành viên phê duyệt.
+    \item \textbf{Tiếp nhận phiếu công việc:} Xem danh sách phiếu sự cố hoặc phiếu bảo trì được giao và xác định tủ Rack, máy chủ cần kiểm tra.
+    \item \textbf{Nhận diện thiết bị qua AR:} Sử dụng ứng dụng AR trên thiết bị di động để quét mã QR/ArUco Marker gắn trên phần cứng, từ đó nhận diện thiết bị và truy cập thông tin vận hành theo ngữ cảnh (contextual operational information).
+    \item \textbf{Xem thông tin vận hành chi tiết:} Truy cập trạng thái máy chủ, dữ liệu telemetry, cảnh báo đang hoạt động, thông tin chẩn đoán (diagnostic information) và danh sách các workload/dịch vụ liên quan.
+    \item \textbf{Cập nhật tiến trình xử lý:} Xác nhận tiếp nhận công việc (acknowledge), cập nhật trạng thái xử lý (handling status), ghi nhận ghi chú điều tra (investigation notes), nguyên nhân xác định (identified causes) và biện pháp khắc phục (corrective actions).
+    \item \textbf{Hoàn tất và yêu cầu đóng phiếu:} Ghi nhận kết quả bảo trì, xem lại lịch sử dịch vụ thiết bị (device service history), đánh dấu sự cố đã giải quyết (resolved) và gửi yêu cầu đóng phiếu (ticket closure request) để Vận hành viên phê duyệt.
 \end{enumerate}
 
 % ---- 1.5.1.4 Hệ thống Giám sát & Cảnh báo Tự động ----
-\subsubsection{Hệ thống Giám sát và Cảnh báo Tự động}
+\subsubsection{Hệ thống Giám sát và Cảnh báo Tự động (Automated Monitoring \& Alerting)}
 \begin{enumerate}[label=\textbf{FS-\arabic*}., leftmargin=2.5em]
-    \item \textbf{Thu thập dữ liệu vận hành:} Tự động thu thập dữ liệu telemetry (CPU, RAM, ổ đĩa, mạng, Docker container) và trạng thái kết nối từ các máy chủ đã đăng ký theo chu kỳ được cấu hình.
-    \item \textbf{Phát hiện bất thường:} Tự động phát hiện các máy chủ không khả dụng (unavailable), các luồng thu thập dữ liệu bị gián đoạn (interrupted data collection) và các chỉ số vận hành vượt ngưỡng đã cấu hình.
-    \item \textbf{Quản lý vòng đời cảnh báo:} Tạo mới và cập nhật trạng thái cảnh báo xuyên suốt vòng đời: Mở (Open) $\rightarrow$ Đã xác nhận (Acknowledged) $\rightarrow$ Đã giải quyết (Resolved) $\rightarrow$ Đã đóng (Closed).
-    \item \textbf{Lưu trữ dữ liệu lịch sử và kiểm toán:} Lưu trữ dữ liệu telemetry lịch sử vào cơ sở dữ liệu chuỗi thời gian (time-series database); ghi nhận các hoạt động giám sát, cảnh báo và bảo trì quan trọng vào nhật ký kiểm toán (audit log).
+    \item \textbf{Thu thập dữ liệu vận hành:} Tự động thu thập dữ liệu telemetry và trạng thái kết nối (connectivity status) từ các máy chủ đã đăng ký theo chu kỳ được cấu hình (defined intervals).
+    \item \textbf{Phát hiện bất thường:} Phát hiện các máy chủ không khả dụng (unavailable servers), luồng thu thập dữ liệu bị gián đoạn (interrupted data collection) và các chỉ số vận hành vượt ngưỡng đã cấu hình (exceeded configured thresholds).
+    \item \textbf{Quản lý vòng đời cảnh báo:} Tạo mới và cập nhật cảnh báo xuyên suốt vòng đời trạng thái:
+    \begin{equation*}
+    \texttt{OPEN} \longrightarrow \texttt{ACKNOWLEDGED} \longrightarrow \texttt{RESOLVED} \longrightarrow \texttt{CLOSED}
+    \end{equation*}
+    \item \textbf{Lưu trữ lịch sử và kiểm toán:} Lưu trữ dữ liệu telemetry lịch sử (historical telemetry) và ghi nhận các hoạt động giám sát, cảnh báo, bảo trì quan trọng vào nhật ký kiểm toán (audit log).
 \end{enumerate}
 
 % ---- Bảng tổng hợp yêu cầu chức năng ----
 \vspace{0.5em}
-\noindent\textbf{Bảng tổng hợp yêu cầu chức năng theo vai trò:}
+\noindent\textbf{Bảng 1.1 -- Tổng hợp yêu cầu chức năng theo vai trò:}
 
 \vspace{0.3em}
 \begin{longtable}{|c|l|p{8.5cm}|}
@@ -66,47 +74,45 @@ Hệ thống AR-IMMS phục vụ bốn nhóm tác nhân chính: \textit{Quản t
 \endhead
 \hline
 \endfoot
-FA-1 & Administrator & Quản lý tài khoản người dùng (CRUD, gán vai trò) \\
+FA-1 & Administrator & Quản lý tài khoản, phân quyền \& cấu hình hệ thống \\
 \hline
-FA-2 & Administrator & Cấu hình thiết lập toàn hệ thống \\
+FA-2 & Administrator & Giám sát tổng quan sức khỏe hệ thống \\
 \hline
-FA-3 & Administrator & Giám sát tổng quan sức khỏe hệ thống \\
+FA-3 & Administrator & Quản lý môi trường Mini Data Center \\
 \hline
-FA-4 & Administrator & Quản lý môi trường Mini Data Center \\
-\hline
-FA-5 & Administrator & Truy vấn nhật ký kiểm toán \\
+FA-4 & Administrator & Truy vấn nhật ký kiểm toán \& lịch sử thay đổi cấu hình \\
 \hline
 FO-1 & Operator & Quản lý tài sản hạ tầng (Rack, Node, Workload) \\
 \hline
-FO-2 & Operator & Liên kết mã đánh dấu không gian QR/ArUco \\
+FO-2 & Operator & Liên kết mã nhận diện không gian QR/ArUco \\
 \hline
-FO-3 & Operator & Giám sát trạng thái vận hành thời gian thực \& lịch sử \\
+FO-3 & Operator & Giám sát trạng thái vận hành real-time \& lịch sử \\
 \hline
 FO-4 & Operator & Tương tác Digital Twin \\
 \hline
-FO-5 & Operator & Cấu hình ngưỡng cảnh báo \\
+FO-5 & Operator & Cấu hình ngưỡng \& xác nhận cảnh báo \\
 \hline
-FO-6 & Operator & Quản lý sự cố và phiếu bảo trì \\
+FO-6 & Operator & Quản lý sự cố, phiếu bảo trì \& giao việc \\
 \hline
-FO-7 & Operator & Phân tích xu hướng và báo cáo vận hành \\
+FO-7 & Operator & Phân tích xu hướng, capacity planning \& báo cáo PUE \\
 \hline
 FO-8 & Operator & Quản lý thông số kỹ thuật \& bảo hành thiết bị \\
 \hline
 FT-1 & Technician & Tiếp nhận phiếu công việc được giao \\
 \hline
-FT-2 & Technician & Nhận diện thiết bị bằng AR (QR/ArUco scan) \\
+FT-2 & Technician & Nhận diện thiết bị qua ứng dụng AR \\
 \hline
-FT-3 & Technician & Xem thông tin chi tiết thiết bị \& telemetry \\
+FT-3 & Technician & Xem thông tin vận hành, telemetry \& chẩn đoán \\
 \hline
-FT-4 & Technician & Cập nhật tiến trình xử lý \\
+FT-4 & Technician & Cập nhật tiến trình, ghi nhận nguyên nhân \& khắc phục \\
 \hline
-FT-5 & Technician & Hoàn tất và đóng phiếu bảo trì \\
+FT-5 & Technician & Hoàn tất bảo trì \& gửi yêu cầu đóng phiếu \\
 \hline
-FS-1 & Hệ thống tự động & Thu thập dữ liệu vận hành theo chu kỳ \\
+FS-1 & Hệ thống tự động & Thu thập dữ liệu vận hành theo chu kỳ cấu hình \\
 \hline
 FS-2 & Hệ thống tự động & Phát hiện bất thường \& vượt ngưỡng \\
 \hline
-FS-3 & Hệ thống tự động & Quản lý vòng đời cảnh báo \\
+FS-3 & Hệ thống tự động & Quản lý vòng đời cảnh báo (4 trạng thái) \\
 \hline
 FS-4 & Hệ thống tự động & Lưu trữ telemetry lịch sử \& nhật ký kiểm toán \\
 \hline
@@ -116,70 +122,72 @@ FS-4 & Hệ thống tự động & Lưu trữ telemetry lịch sử \& nhật k�
 %% 1.5.2 YÊU CẦU PHI CHỨC NĂNG
 %% =============================================
 \subsection{Yêu cầu phi chức năng}
-Bên cạnh các yêu cầu chức năng, hệ thống AR-IMMS cần đáp ứng các yêu cầu phi chức năng sau đây để đảm bảo chất lượng vận hành trong thực tiễn. Các yêu cầu phi chức năng này cũng ảnh hưởng trực tiếp đến việc thiết kế cấu trúc CSDL, lựa chọn kiểu dữ liệu, chiến lược đánh chỉ mục (indexing), và cơ chế phân vùng (partitioning).
+Các yêu cầu phi chức năng quy định ràng buộc về chất lượng vận hành của hệ thống. Đối với môn Thiết kế CSDL, các yêu cầu này ảnh hưởng trực tiếp đến: lựa chọn kiểu dữ liệu, thiết kế chỉ mục (indexing), chiến lược phân vùng (partitioning) bảng telemetry, và cơ chế ràng buộc toàn vẹn (integrity constraints).
 
-% ---- 1.5.2.1 Hiệu năng (Performance) ----
+% ---- Hiệu năng ----
 \subsubsection{Hiệu năng (Performance)}
 \begin{itemize}[leftmargin=2em]
-    \item Dữ liệu telemetry từ các máy chủ phải được thu thập theo chu kỳ cấu hình được, với chu kỳ mặc định là \textbf{5 giây}.
-    \item Một máy chủ sẽ được báo cáo là \textit{không khả dụng} (unavailable) khi không nhận được dữ liệu telemetry trong vòng hơn \textbf{90 giây}.
-    \item Hệ thống phải hỗ trợ truyền phát dữ liệu theo thời gian thực qua WebSocket với độ trễ thấp, cho phép điều hướng drilldown liền mạch từ tổng quan đến chi tiết container trong tối đa 3 lần nhấp chuột.
+    \item Dữ liệu telemetry từ các máy chủ phải được thu thập theo chu kỳ cấu hình được (configurable interval), với chu kỳ mặc định là \textbf{5 giây}.
+    \item Máy chủ sẽ được báo cáo là \textit{không khả dụng} (unavailable) khi không nhận được dữ liệu telemetry trong hơn \textbf{90 giây}.
+    \item \textit{Hàm ý thiết kế CSDL:} Bảng telemetry cần được thiết kế tối ưu cho việc ghi tuần tự tốc độ cao (high-throughput sequential writes) và truy vấn phạm vi thời gian (time-range queries). Trường \texttt{LastSeen} của bảng \texttt{Server} cần được cập nhật liên tục để hỗ trợ phát hiện mất kết nối.
 \end{itemize}
 
-% ---- 1.5.2.2 Khả dụng (Availability) ----
+% ---- Khả dụng ----
 \subsubsection{Khả dụng (Availability)}
 \begin{itemize}[leftmargin=2em]
-    \item Nền tảng phải hoạt động ổn định trong các giờ làm việc dự kiến.
+    \item Nền tảng phải hoạt động ổn định trong các giờ làm việc dự kiến (expected working hours).
     \item Hệ thống phải thông báo cho người dùng khi một máy chủ hoặc bộ thu thập dữ liệu (data collector) trở nên không khả dụng.
-    \item Các dịch vụ quan trọng (Backend API, WebSocket Gateway) cần được theo dõi tính khả dụng liên tục.
 \end{itemize}
 
-% ---- 1.5.2.3 Bảo mật (Security) ----
+% ---- Bảo mật ----
 \subsubsection{Bảo mật (Security)}
 \begin{itemize}[leftmargin=2em]
-    \item Hệ thống phải thực thi xác thực (authentication) cho mọi truy cập và phân quyền dựa trên vai trò (Role-Based Access Control -- RBAC) với ba vai trò: Administrator, Operator và Technician.
-    \item Sử dụng \textbf{JWT} (JSON Web Token) cho xác thực API và \textbf{mTLS} (mutual TLS) cho các kết nối từ telemetry agent đến backend.
-    \item Tất cả các thay đổi cấu hình, cập nhật phiếu bảo trì và các hành động từ xa (remote actions) phải được ghi nhận vào nhật ký kiểm toán (audit log) với đầy đủ thông tin: người thực hiện, thời điểm, hành động, và đối tượng bị tác động.
+    \item Hệ thống phải thực thi \textbf{xác thực} (authenticated access) cho mọi truy cập và \textbf{phân quyền theo vai trò} (role-based permissions) cho ba vai trò: Administrator, Operator và Technician.
+    \item Sử dụng \textbf{mTLS} (mutual TLS) cho các kết nối từ telemetry agent đến backend.
+    \item Tất cả thay đổi cấu hình, cập nhật phiếu bảo trì (ticket updates) và các hành động từ xa (remote actions) phải được ghi vào nhật ký kiểm toán (audit log).
+    \item \textit{Hàm ý thiết kế CSDL:} Cần thiết kế bảng \texttt{User}, bảng phân quyền \texttt{Role} và bảng \texttt{AuditLog} với đầy đủ các trường: người thực hiện, thời điểm, hành động, đối tượng bị tác động.
 \end{itemize}
 
-% ---- 1.5.2.4 Độ tin cậy (Reliability) ----
+% ---- Độ tin cậy ----
 \subsubsection{Độ tin cậy (Reliability)}
 \begin{itemize}[leftmargin=2em]
-    \item Các telemetry agent phải tự động thử lại (retry) khi truyền dữ liệu thất bại và tự phục hồi (resume) sau khi kết nối lại thành công.
-    \item Hệ thống phải triệt tiêu cảnh báo trùng lặp (duplicate suppression) để ngăn chặn tình trạng bão cảnh báo (alert storm).
-    \item Các sự cố phải tuân theo vòng đời trạng thái rõ ràng: Open $\rightarrow$ In-Progress $\rightarrow$ Resolved $\rightarrow$ Closed, được quản lý bằng máy trạng thái (state machine) trong CSDL.
+    \item Các telemetry agent phải tự động thử lại (retry) khi truyền thất bại và tự phục hồi (resume) sau khi kết nối lại thành công.
+    \item Hệ thống phải triệt tiêu cảnh báo trùng lặp (duplicate suppression) để ngăn chặn bão cảnh báo (alert storm).
+    \item Các sự cố phải tuân theo vòng đời trạng thái rõ ràng:
+    \begin{equation*}
+    \texttt{OPEN} \longrightarrow \texttt{IN\_PROGRESS} \longrightarrow \texttt{RESOLVED} \longrightarrow \texttt{CLOSED}
+    \end{equation*}
+    \item \textit{Hàm ý thiết kế CSDL:} Cần sử dụng kiểu \texttt{ENUM} hoặc bảng tra cứu (lookup table) cho các trường trạng thái, kết hợp ràng buộc \texttt{CHECK} đảm bảo tính hợp lệ của chuyển trạng thái.
 \end{itemize}
 
-% ---- 1.5.2.5 Khả năng mở rộng (Scalability) ----
+% ---- Khả năng mở rộng ----
 \subsubsection{Khả năng mở rộng (Scalability)}
 \begin{itemize}[leftmargin=2em]
-    \item Bản PoC (Proof of Concept) phải chứng minh rằng một node xử lý mới được thêm vào sẽ bắt đầu truyền telemetry và xuất hiện trong Digital Twin trong vòng \textbf{5 phút} kể từ khi đăng ký.
-    \item Việc thêm node mới chỉ yêu cầu cấu hình thông tin đăng nhập (credentials) và địa chỉ endpoint, \textbf{không} cần sửa đổi mã nguồn dịch vụ lõi (core service code).
-    \item Cấu trúc CSDL phải hỗ trợ mở rộng theo chiều ngang (horizontal scalability) -- cho phép thêm nhiều site, room, rack và node mà không ảnh hưởng đến hiệu năng truy vấn.
+    \item Bản PoC phải chứng minh rằng một node mới thêm vào bắt đầu streaming telemetry và xuất hiện trong Digital Twin trong vòng \textbf{5 phút} kể từ khi đăng ký.
+    \item Việc thêm node mới chỉ yêu cầu cấu hình thông tin đăng nhập (node credentials) và địa chỉ endpoint, \textbf{không} cần sửa đổi mã nguồn dịch vụ lõi.
+    \item \textit{Hàm ý thiết kế CSDL:} Mô hình phân cấp (Site $\rightarrow$ Room $\rightarrow$ Rack $\rightarrow$ Node) phải hỗ trợ mở rộng theo chiều ngang -- cho phép thêm nhiều site, room, rack và node mà không ảnh hưởng hiệu năng truy vấn.
 \end{itemize}
 
-% ---- 1.5.2.6 Khả năng sử dụng (Usability) ----
+% ---- Khả năng sử dụng ----
 \subsubsection{Khả năng sử dụng (Usability)}
 \begin{itemize}[leftmargin=2em]
-    \item Hệ thống cung cấp giao diện dashboard \textbf{desktop-first} bằng tiếng Anh trên nền tảng Web (Next.js) và ứng dụng AR trên Android (React Native).
-    \item Giao diện người dùng phải responsive, dễ tiếp cận (accessible), hiển thị rõ ràng trạng thái sức khỏe máy chủ, chi tiết sự cố, các bước khắc phục và hướng dẫn bảo trì.
-    \item Hỗ trợ điều hướng phân cấp liền mạch: Site $\rightarrow$ Room $\rightarrow$ Rack $\rightarrow$ Node $\rightarrow$ Workload với giao diện drilldown trực quan.
+    \item Hệ thống cung cấp dashboard \textbf{desktop-first} bằng tiếng Anh và ứng dụng AR trên nền tảng Android.
+    \item Giao diện phải responsive, dễ tiếp cận (accessible) và hiển thị rõ ràng: trạng thái sức khỏe máy chủ, chi tiết sự cố, các bước khắc phục và hướng dẫn bảo trì.
 \end{itemize}
 
-% ---- 1.5.2.7 Bảo trì & An toàn (Maintainability & Safety) ----
+% ---- Bảo trì & An toàn ----
 \subsubsection{Bảo trì và An toàn (Maintainability \& Safety)}
 \begin{itemize}[leftmargin=2em]
-    \item Hệ thống phải hỗ trợ kiểm thử tự động (automated testing), ghi log tập trung (centralized logging), và cho phép cấu hình linh hoạt các chỉ số giám sát cùng ngưỡng cảnh báo.
-    \item Các hành động có tính phá hủy hoặc ảnh hưởng lớn (ví dụ: khởi động lại dịch vụ từ phiên AR) phải yêu cầu \textbf{xác nhận} (confirmation) trước khi thực thi và được ghi vào nhật ký kiểm toán.
-    \item Mã nguồn backend và frontend phải được tổ chức theo kiến trúc module, hỗ trợ triển khai bằng container (containerized deployment) để thuận tiện cho việc bảo trì và nâng cấp.
+    \item Hệ thống hỗ trợ kiểm thử tự động (automated testing), ghi log tập trung (centralized logging) và cấu hình linh hoạt các chỉ số giám sát cùng ngưỡng cảnh báo.
+    \item Các hành động có tính phá hủy trong phiên AR (ví dụ: khởi động lại dịch vụ) phải yêu cầu \textbf{xác nhận} (confirmation) trước khi thực thi và được ghi vào nhật ký kiểm toán.
 \end{itemize}
 
 % ---- Bảng tổng hợp yêu cầu phi chức năng ----
 \vspace{0.5em}
-\noindent\textbf{Bảng tổng hợp yêu cầu phi chức năng:}
+\noindent\textbf{Bảng 1.2 -- Tổng hợp yêu cầu phi chức năng:}
 
 \vspace{0.3em}
-\begin{longtable}{|c|p{3cm}|p{9cm}|}
+\begin{longtable}{|c|p{2.8cm}|p{9.2cm}|}
 \hline
 \textbf{Mã} & \textbf{Thuộc tính} & \textbf{Mô tả yêu cầu} \\
 \hline
@@ -190,66 +198,85 @@ Bên cạnh các yêu cầu chức năng, hệ thống AR-IMMS cần đáp ứng
 \endhead
 \hline
 \endfoot
-NF-1 & Hiệu năng & Thu thập telemetry mặc định 5s; phát hiện unavailable sau 90s \\
+NF-1 & Hiệu năng & Thu thập telemetry chu kỳ mặc định 5s; unavailable khi mất tín hiệu $>$ 90s \\
 \hline
-NF-2 & Hiệu năng & Truyền phát real-time qua WebSocket, drilldown $\leq$ 3 click \\
+NF-2 & Khả dụng & Hoạt động ổn định giờ làm việc; thông báo khi server/collector unavailable \\
 \hline
-NF-3 & Khả dụng & Hoạt động ổn định giờ làm việc; thông báo khi server/collector unavailable \\
+NF-3 & Bảo mật & Xác thực truy cập, phân quyền RBAC 3 vai trò, mTLS cho agent \\
 \hline
-NF-4 & Bảo mật & Xác thực JWT, phân quyền RBAC (3 vai trò), mTLS cho agent \\
+NF-4 & Bảo mật & Audit log cho mọi thay đổi cấu hình, ticket \& hành động từ xa \\
 \hline
-NF-5 & Bảo mật & Audit log đầy đủ cho mọi thay đổi cấu hình và hành động quan trọng \\
+NF-5 & Độ tin cậy & Agent tự retry/resume; triệt tiêu cảnh báo trùng lặp \\
 \hline
-NF-6 & Độ tin cậy & Agent tự retry/resume; triệt tiêu cảnh báo trùng lặp \\
+NF-6 & Độ tin cậy & Incident lifecycle: Open $\rightarrow$ In-Progress $\rightarrow$ Resolved $\rightarrow$ Closed \\
 \hline
-NF-7 & Độ tin cậy & Vòng đời sự cố: Open $\rightarrow$ In-Progress $\rightarrow$ Resolved $\rightarrow$ Closed \\
+NF-7 & Khả năng mở rộng & Node mới streaming telemetry $\leq$ 5 phút; không sửa mã nguồn lõi \\
 \hline
-NF-8 & Khả năng mở rộng & Node mới streaming telemetry $\leq$ 5 phút; không sửa mã nguồn lõi \\
+NF-8 & Khả năng sử dụng & Dashboard desktop-first (Web), AR app (Android); giao diện responsive \\
 \hline
-NF-9 & Khả năng sử dụng & Dashboard desktop-first (Web), AR app (Android); giao diện responsive \\
-\hline
-NF-10 & Bảo trì \& An toàn & Automated testing, centralized logging; xác nhận trước hành động phá hủy \\
+NF-9 & Bảo trì \& An toàn & Automated testing, centralized logging; xác nhận trước hành động phá hủy \\
 \hline
 \end{longtable}
 
 %% =============================================
-%% 1.5.3 ÁNH XẠ YÊU CẦU VÀO ĐỐI TƯỢNG DỮ LIỆU
+%% 1.5.3 QUY TẮC NGHIỆP VỤ TRỌNG YẾU
+%% =============================================
+\subsection{Quy tắc nghiệp vụ trọng yếu ảnh hưởng đến thiết kế CSDL}
+Các quy tắc nghiệp vụ dưới đây được rút ra từ phần khảo sát (Mục 1.2 -- 1.4) và đề cương dự án, có tác động trực tiếp đến việc xác định ràng buộc toàn vẹn (integrity constraints), kiểu dữ liệu và quan hệ trong lược đồ CSDL.
+
+\begin{enumerate}[label=\textbf{BR-\arabic*}., leftmargin=2.5em]
+    \item \textbf{Ràng buộc phân cấp hạ tầng:} Mỗi thực thể cấp dưới phải thuộc duy nhất một thực thể cấp trên theo chuỗi phụ thuộc $1{:}N$: Site $\rightarrow$ Room $\rightarrow$ Rack $\rightarrow$ Server $\rightarrow$ Workload. Xóa thực thể cấp trên phải xử lý toàn bộ tham chiếu con (CASCADE hoặc RESTRICT).
+    \item \textbf{Ràng buộc mã nhận diện không gian:} Mỗi Server chỉ được gán \textbf{duy nhất} một mã \texttt{QRCodeStamp} (QR/ArUco Marker) tại một thời điểm. Khi phần cứng di chuyển hoặc thay thế, liên kết cũ phải được hủy bỏ trước khi gán mã mới.
+    \item \textbf{Ràng buộc trạng thái cảnh báo:} Cảnh báo (\texttt{Alert}) phải tuân theo máy trạng thái: \texttt{OPEN} $\rightarrow$ \texttt{ACKNOWLEDGED} $\rightarrow$ \texttt{RESOLVED} $\rightarrow$ \texttt{CLOSED}. Không cho phép chuyển ngược trạng thái.
+    \item \textbf{Ràng buộc trạng thái phiếu bảo trì:} Phiếu bảo trì (\texttt{MaintenanceTicket}) tuân theo máy trạng thái: \texttt{ASSIGNED} $\rightarrow$ \texttt{IN\_PROGRESS} $\rightarrow$ \texttt{PENDING\_APPROVAL} $\rightarrow$ \texttt{CLOSED}.
+    \item \textbf{Quy tắc phê duyệt đóng phiếu:} Kỹ thuật viên \textbf{không được} tự đóng phiếu bảo trì. Sau khi xử lý xong, Kỹ thuật viên chuyển phiếu sang \texttt{PENDING\_APPROVAL}; chỉ Operator mới có quyền phê duyệt chuyển sang \texttt{CLOSED}.
+    \item \textbf{Quy tắc chống bão cảnh báo:} Nếu một Server đang có sự cố \texttt{IN\_PROGRESS}, các cảnh báo trùng lặp tiếp theo phải được tự động gộp vào sự cố hiện tại thay vì tạo sự cố mới.
+    \item \textbf{Ràng buộc phát hiện mất kết nối:} Trường \texttt{LastSeen} trong bảng \texttt{Server} phải được cập nhật mỗi khi nhận dữ liệu telemetry. Khi $\text{NOW()} - \texttt{LastSeen} > 90\,\text{s}$, trạng thái Server tự động chuyển sang \texttt{Unavailable}.
+    \item \textbf{Ràng buộc gom nhóm sự cố -- cảnh báo:} Mỗi \texttt{Incident} phải tham chiếu ít nhất một \texttt{Alert} gốc. Mối quan hệ giữa \texttt{Incident} và \texttt{Alert} là $1{:}N$ (một sự cố gom nhiều cảnh báo cùng ngữ cảnh).
+    \item \textbf{Ràng buộc phiếu bảo trì -- thiết bị mục tiêu:} Mỗi \texttt{MaintenanceTicket} phải xác định rõ đối tượng mục tiêu (\texttt{TargetID}) cùng loại đối tượng (\texttt{SERVER}, \texttt{RACK}, hoặc \texttt{CONTAINER}).
+    \item \textbf{Ràng buộc nhật ký kiểm toán:} Bản ghi \texttt{AuditLog} phải là \textbf{bất biến} (immutable) -- chỉ cho phép \texttt{INSERT}, không cho phép \texttt{UPDATE} hoặc \texttt{DELETE}.
+\end{enumerate}
+
+%% =============================================
+%% 1.5.4 ÁNH XẠ YÊU CẦU VÀO ĐỐI TƯỢNG DỮ LIỆU
 %% =============================================
 \subsection{Ánh xạ Yêu cầu vào Đối tượng Dữ liệu chính}
-Từ các yêu cầu chức năng và phi chức năng trên, có thể nhận diện các nhóm đối tượng dữ liệu chính mà CSDL của hệ thống AR-IMMS cần quản lý. Bảng dưới đây tóm tắt ánh xạ từ yêu cầu sang các thực thể dữ liệu trọng yếu, làm cơ sở cho việc xây dựng mô hình ERD ở Chương 2.
+Từ toàn bộ yêu cầu chức năng, phi chức năng và quy tắc nghiệp vụ đã xác định, bảng dưới đây tổng hợp ánh xạ từ nhóm yêu cầu sang các thực thể/đối tượng dữ liệu chính mà CSDL của hệ thống AR-IMMS cần quản lý. Kết quả này là đầu vào trực tiếp cho việc xây dựng mô hình ERD tại Chương 2.
 
 \vspace{0.3em}
-\begin{longtable}{|p{3.5cm}|p{4cm}|p{6cm}|}
+\noindent\textbf{Bảng 1.3 -- Ánh xạ yêu cầu sang đối tượng dữ liệu:}
+
+\vspace{0.3em}
+\begin{longtable}{|p{3.2cm}|p{3.8cm}|p{6.5cm}|}
 \hline
-\textbf{Nhóm yêu cầu} & \textbf{Đối tượng dữ liệu} & \textbf{Mô tả} \\
+\textbf{Nhóm yêu cầu} & \textbf{Đối tượng dữ liệu} & \textbf{Mô tả vai trò trong CSDL} \\
 \hline
 \endfirsthead
 \hline
-\textbf{Nhóm yêu cầu} & \textbf{Đối tượng dữ liệu} & \textbf{Mô tả} \\
+\textbf{Nhóm yêu cầu} & \textbf{Đối tượng dữ liệu} & \textbf{Mô tả vai trò trong CSDL} \\
 \hline
 \endhead
 \hline
 \endfoot
-Quản lý tài khoản, phân quyền (FA-1, NF-4) & User, Role & Tài khoản người dùng, vai trò RBAC, token xác thực \\
+Quản lý tài khoản \& phân quyền (FA-1, NF-3) & \texttt{User}, \texttt{Role} & Thông tin tài khoản, vai trò RBAC, token xác thực \\
 \hline
-Quản lý tài sản hạ tầng (FO-1, FO-2, FO-8) & Site, Room, Rack, Node, Workload, SpatialMarker & Hệ thống phân cấp tài sản, thông số kỹ thuật, mã marker \\
+Quản lý phân cấp hạ tầng (FO-1, FO-2, BR-1, BR-2) & \texttt{Site}, \texttt{Room}, \texttt{Rack}, \texttt{Server}, \texttt{Workload} & Cây phân cấp tài sản vật lý, mã QR/ArUco Marker \\
 \hline
-Thu thập \& giám sát (FO-3, FS-1, NF-1) & TelemetryRecord, CollectorStatus & Dữ liệu telemetry chuỗi thời gian, trạng thái kết nối agent \\
+Thu thập telemetry (FO-3, FS-1, NF-1, BR-7) & \texttt{TelemetryMetric} & Dữ liệu chuỗi thời gian: CPU, RAM, network, container states \\
 \hline
-Cảnh báo (FO-5, FS-2, FS-3, NF-6, NF-7) & Alert, AlertThreshold & Ngưỡng cảnh báo, cảnh báo với vòng đời trạng thái \\
+Cấu hình ngưỡng \& cảnh báo (FO-5, FS-2, FS-3, BR-3, BR-6) & \texttt{AlertThreshold}, \texttt{Alert} & Luật ngưỡng cảnh báo, vòng đời trạng thái Alert \\
 \hline
-Sự cố \& phiếu bảo trì (FO-6, FT-1 -- FT-5) & Incident, Ticket, TicketActivity & Phiếu sự cố, phiếu bảo trì, ghi chú xử lý, lịch sử dịch vụ \\
+Sự cố \& phiếu bảo trì (FO-6, FT-1--FT-5, BR-4, BR-5, BR-8, BR-9) & \texttt{Incident}, \texttt{MaintenanceTicket}, \texttt{MaintenanceLog} & Phiếu sự cố, phiếu bảo trì, nhật ký xử lý hiện trường \\
 \hline
-Bảo hành \& lịch sử bảo trì (FO-8) & Warranty, MaintenanceLog & Thông tin bảo hành, lịch sử bảo trì thiết bị \\
+Bảo hành \& lịch sử thiết bị (FO-8) & \texttt{Warranty}, \texttt{MaintenanceHistory} & Thông tin bảo hành, lịch sử bảo trì tài sản \\
 \hline
-Kiểm toán (FA-5, NF-5, FS-4) & AuditLog & Nhật ký kiểm toán ghi lại mọi thay đổi quan trọng \\
+Kiểm toán hệ thống (FA-4, NF-4, FS-4, BR-10) & \texttt{AuditLog} & Nhật ký bất biến ghi lại mọi thay đổi quan trọng \\
 \hline
-Báo cáo \& phân tích (FO-7, NF-2) & Report, TrendAnalytics & Báo cáo vận hành, phân tích xu hướng, PUE metrics \\
+Báo cáo \& phân tích (FO-7) & \texttt{Report}, \texttt{TrendAnalytics} & Báo cáo xu hướng, capacity planning, PUE metrics \\
 \hline
-Cấu hình hệ thống (FA-2, FA-4) & SystemConfig, DataCenterConfig & Tham số cấu hình hệ thống, thiết lập môi trường DC \\
+Cấu hình hệ thống (FA-1, FA-3) & \texttt{SystemConfig} & Tham số cấu hình toàn hệ thống, thiết lập môi trường DC \\
 \hline
 \end{longtable}
 
 \vspace{0.3em}
-\noindent Các đối tượng dữ liệu được xác định ở trên sẽ được phân tích chi tiết, xác định thuộc tính, mối quan hệ và ràng buộc toàn vẹn trong \textbf{Chương 2 -- Thiết kế Mô hình Dữ liệu quan niệm} và tiếp tục được chuẩn hóa trong \textbf{Chương 3 -- Thiết kế Mô hình Logic \& Chuẩn hóa}.
-
+\noindent Các đối tượng dữ liệu được xác định ở trên sẽ được phân tích chi tiết về thuộc tính, mối quan hệ và ràng buộc toàn vẹn trong \textbf{Chương 2 -- Thiết kế Mô hình Dữ liệu Quan niệm}, đồng thời được chuẩn hóa đạt dạng chuẩn 3NF trong các chương tiếp theo.
