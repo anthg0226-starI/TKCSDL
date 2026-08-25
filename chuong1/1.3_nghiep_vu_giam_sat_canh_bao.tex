@@ -4,16 +4,16 @@ Phân hệ đảm nhận chức năng tiếp nhận chuỗi dữ liệu thời g
 
 \subsection{Thu thập Dữ liệu Đo lường Chuỗi thời gian}
 \begin{itemize}[leftmargin=2em]
-    \item Collector Agent cài đặt tại từng máy chủ tự động gửi dữ liệu định kỳ (mặc định \textbf{5 giây/lần}) lưu trữ vào thực thể \texttt{telemetry\_metric}.
-    \item Mỗi bản ghi telemetry (\texttt{metric\_id}) gắn liền với một máy chủ (\texttt{server\_id}) bao gồm: tỷ lệ CPU (\texttt{cpu\_usage}), bộ nhớ RAM (\texttt{ram\_usage}), thông lượng mạng (\texttt{network\_traffic}), trạng thái các container (\texttt{container\_states}) dạng JSON và mốc thời gian \texttt{timestamp}.
-    \item \textbf{Phát hiện mất kết nối:} Hệ thống cập nhật trường \texttt{last\_seen} trong thực thể \texttt{server}. Nếu quá \textbf{90 giây} không nhận được dữ liệu, trạng thái \texttt{status} của máy chủ tự động chuyển sang \texttt{unavailable}.
+    \item Collector Agent cài đặt tại từng máy chủ tự động gửi dữ liệu định kỳ (mặc định \textbf{5 giây/lần}) lưu trữ vào thực thể \texttt{TelemetryMetric}.
+    \item Mỗi bản ghi telemetry (\texttt{MetricID}) gắn liền với một máy chủ (\texttt{ServerID}) bao gồm: tỷ lệ CPU (\texttt{CPUUsage}), bộ nhớ RAM (\texttt{RAMUsage}), thông lượng mạng (\texttt{NetworkTraffic}), trạng thái các container (\texttt{ContainerStates}) dạng JSON và mốc thời gian \texttt{Timestamp}.
+    \item \textbf{Phát hiện mất kết nối:} Hệ thống cập nhật trường \texttt{LastSeen} trong thực thể \texttt{Server}. Nếu quá \textbf{90 giây} không nhận được dữ liệu, trạng thái \texttt{Status} của máy chủ tự động chuyển sang \texttt{Unavailable}.
 \end{itemize}
 
 \subsection{Cấu hình Ngưỡng và Vòng đời Cảnh báo}
 \begin{itemize}[leftmargin=2em]
-    \item \textbf{Cấu hình ngưỡng (\texttt{alert\_threshold}):} Định nghĩa luật vi phạm cho từng loại chỉ số \texttt{metric\_type}, quy định mức cảnh báo nhẹ \texttt{warning\_value} và mức nguy hiểm \texttt{critical\_value}.
-    \item \textbf{Phát sinh cảnh báo (\texttt{alert}):} Khi dữ liệu telemetry vượt ngưỡng hoặc kết nối bị ngắt, một sự kiện cảnh báo \texttt{alert\_id} tự động phát sinh liên kết với \texttt{server\_id} và \texttt{threshold\_id}.
-    \item \textbf{Vòng đời xử lý Cảnh báo (\texttt{state}):} Cảnh báo được theo dõi qua các trạng thái:
+    \item \textbf{Cấu hình ngưỡng (\texttt{AlertThreshold}):} Định nghĩa luật vi phạm cho từng loại chỉ số \texttt{MetricType}, quy định mức cảnh báo nhẹ \texttt{WarningValue} và mức nguy hiểm \texttt{CriticalValue}.
+    \item \textbf{Phát sinh cảnh báo (\texttt{Alert}):} Khi dữ liệu telemetry vượt ngưỡng hoặc kết nối bị ngắt, một sự kiện cảnh báo \texttt{AlertID} tự động phát sinh liên kết với \texttt{ServerID} và \texttt{ThresholdID}.
+    \item \textbf{Vòng đời xử lý Cảnh báo (\texttt{State}):} Cảnh báo được theo dõi qua các trạng thái:
     \begin{equation*}
     \text{\texttt{OPEN}} \longrightarrow \text{\texttt{ACKNOWLEDGED}} \longrightarrow \text{\texttt{RESOLVED}} \longrightarrow \text{\texttt{CLOSED}}
     \end{equation*}
