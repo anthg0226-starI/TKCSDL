@@ -1,1 +1,224 @@
+% An
 \section{Xác định Các Thực thể và Thuộc tính}
+Dựa trên các phân hệ chức năng và phi chức năng của hệ thống, mô hình dữ liệu quan niệm xác định các thực thể cốt lõi cùng danh sách thuộc tính chi tiết và các liên kết khóa ngoại như sau. 
+
+Để đảm bảo tính liên kết chặt chẽ và mạch lạc giữa các phân hệ trong quá trình thiết kế sơ đồ thực thể kết hợp (ERD), kiến trúc dữ liệu của hệ thống được quy hoạch dựa trên hai trục liên kết trung tâm:
+\begin{itemize}[leftmargin=2em]
+    \item \textbf{Trục xương sống phần cứng (\texttt{Server}):} Đóng vai trò là nút gốc trung tâm của toàn bộ hạ tầng Mini Data Center. Mọi dữ liệu về đo lường thời gian thực (\texttt{TelemetryMetric}), cảnh báo hệ thống (\texttt{Alert}), sự cố phát sinh (\texttt{Incident}), phiếu bảo trì hiện trường (\texttt{MaintenanceTicket}) cho đến quản lý tài sản phần cứng (\texttt{Asset}) đều được định tuyến liên kết trực tiếp hoặc gián tiếp thông qua khóa ngoại trỏ về thực thể \texttt{Server} (\texttt{ServerID}).
+    \item \textbf{Trục vận hành và danh tính định danh (\texttt{User}):} Tập trung quản lý toàn bộ các tác vụ có sự tham gia của con người (như xác nhận cảnh báo, tạo sự cố, phân công phiếu bảo trì, ghi nhận nhật ký xử lý và giám sát dấu vết kiểm toán \texttt{AuditLog}), tất cả đều quy tụ về thực thể người dùng \texttt{User} (\texttt{UserID}).
+\end{itemize}
+
+\subsection{Phân hệ Hạ tầng \& Digital Twin (Infrastructure Hierarchy \& Digital Twin)}
+\begin{itemize}[leftmargin=2em]
+    \item \textbf{Thực thể \texttt{Site} (Trung tâm Dữ liệu):}
+    \begin{itemize}
+        \item \texttt{SiteID} (PK): Mã định danh duy nhất của Trung tâm dữ liệu.
+        \item \texttt{SiteName} (NOT NULL): Tên Trung tâm dữ liệu.
+        \item \texttt{Location} (NULL): Địa chỉ / Tọa độ địa lý.
+        \item \texttt{Description} (NULL): Mô tả quy mô hoặc thông tin bổ sung.
+    \end{itemize}
+    \item \textbf{Thực thể \texttt{Room} (Phòng Máy chủ):}
+    \begin{itemize}
+        \item \texttt{RoomID} (PK): Mã định danh duy nhất của Phòng máy.
+        \item \texttt{SiteID} (FK, NOT NULL): Khóa ngoại liên kết tới bảng \texttt{Site(SiteID)}.
+        \item \texttt{RoomName} (NOT NULL): Tên phòng máy.
+        \item \texttt{FloorLevel} (NULL): Vị trí tầng.
+    \end{itemize}
+    \item \textbf{Thực thể \texttt{Rack} (Tủ Rack Máy chủ):}
+    \begin{itemize}
+        \item \texttt{RackID} (PK): Mã định danh duy nhất của tủ Rack.
+        \item \texttt{RoomID} (FK, NOT NULL): Khóa ngoại liên kết tới bảng \texttt{Room(RoomID)}.
+        \item \texttt{RackName} (NOT NULL): Tên/Mã định danh tủ Rack.
+        \item \texttt{MaxUnit} (NULL): Tải trọng không gian tối đa.
+        \item \texttt{LocationInRoom} (NULL): Tọa độ vị trí tủ Rack trong phòng máy.
+    \end{itemize}
+    \item \textbf{Thực thể \texttt{Server} (Máy chủ Vật lý / Node gốc):}
+    \begin{itemize}
+        \item \texttt{ServerID} (PK): Mã định danh duy nhất của Máy chủ.
+        \item \texttt{RackID} (FK, NOT NULL): Khóa ngoại liên kết tới bảng \texttt{Rack(RackID)}.
+        \item \texttt{ServerName} / \texttt{Hostname} (NOT NULL): Tên máy chủ/Node.
+        \item \texttt{IPAddress} (NOT NULL): Địa chỉ IP quản lý mạng.
+        \item \texttt{QRCodeStamp} / \texttt{MarkerID} (NULL): Mã nhận diện QR Code / ArUco Marker để ứng dụng AR quét thực địa.
+        \item \texttt{UPosition} (NULL): Vị trí đặt máy chủ trong tủ Rack.
+        \item \texttt{Status} (NOT NULL): Trạng thái hoạt động.
+    \end{itemize}
+    \item \textbf{Thực thể \texttt{Workload} (Khối lượng Công việc / Container / Dịch vụ):}
+    \begin{itemize}
+        \item \texttt{WorkloadID} (PK): Mã định danh khối lượng công việc.
+        \item \texttt{ServerID} (FK, NOT NULL): Khóa ngoại liên kết tới bảng \texttt{Server(ServerID)}.
+        \item \texttt{WorkloadName} (NOT NULL): Tên dịch vụ hoặc ứng dụng.
+        \item \texttt{ContainerID} (NULL): Mã định danh Docker Container tương ứng.
+        \item \texttt{ServiceType} (NULL): Loại dịch vụ.
+        \item \texttt{Status} (NOT NULL): Trạng thái thực thi.
+    \end{itemize}
+\end{itemize}
+
+\subsection{Phân hệ Streaming Telemetry \& Alerting Engine}
+\begin{itemize}[leftmargin=2em]
+    \item \textbf{Thực thể \texttt{Server} (Quản lý thiết bị / Node cơ sở hạ tầng):}
+    \begin{itemize}
+        \item \texttt{ServerID} (PK): Mã định danh duy nhất của máy chủ/node.
+        \item \texttt{Hostname} (NOT NULL): Tên định danh máy chủ trong hệ thống mạng.
+        \item \texttt{IPAddress} (NOT NULL): Địa chỉ IP (IPv4/IPv6) của máy chủ.
+        \item \texttt{Status} (NOT NULL): Trạng thái hoạt động hiện tại của server.
+        \item \texttt{LastSeen} (NOT NULL): Mốc thời gian gần nhất hệ thống nhận dữ liệu telemetry.
+    \end{itemize}
+    \item \textbf{Thực thể \texttt{TelemetryMetric} (Dữ liệu đo lường thời gian thực):}
+    \begin{itemize}
+        \item \texttt{MetricID} (PK): Mã định danh duy nhất cho bản ghi telemetry.
+        \item \texttt{ServerID} (FK, NOT NULL): Liên kết tới bảng \texttt{Server(ServerID)}.
+        \item \texttt{CPUUsage} (NOT NULL): Mức độ sử dụng CPU.
+        \item \texttt{RAMUsage} (NOT NULL): Mức độ sử dụng RAM.
+        \item \texttt{NetworkTraffic} (NOT NULL): Lưu lượng mạng truyền tải.
+        \item \texttt{ContainerStates} (NULL): Trạng thái các container bên trong.
+        \item \texttt{Timestamp} (NOT NULL): Thời điểm ghi nhận dữ liệu đo lường.
+    \end{itemize}
+    \item \textbf{Thực thể \texttt{AlertThreshold} (Cấu hình ngưỡng cảnh báo):}
+    \begin{itemize}
+        \item \texttt{ThresholdID} (PK): Mã định danh ngưỡng cảnh báo.
+        \item \texttt{MetricType} (NOT NULL): Loại chỉ số cần theo dõi.
+        \item \texttt{WarningValue} (NULL): Giá trị cảnh báo cấp độ Warning.
+        \item \texttt{CriticalValue} (NULL): Giá trị cảnh báo cấp độ Critical.
+        \item \texttt{IsActive} (NOT NULL): Trạng thái kích hoạt cấu hình.
+    \end{itemize}
+    \item \textbf{Thực thể \texttt{Alert} (Quản lý sự kiện cảnh báo \& Vòng đời):}
+    \begin{itemize}
+        \item \texttt{AlertID} (PK): Mã định danh sự kiện cảnh báo.
+        \item \texttt{ServerID} (FK, NOT NULL): Liên kết tới bảng \texttt{Server(ServerID)}.
+        \item \texttt{ThresholdID} (FK, NOT NULL): Liên kết tới bảng \texttt{AlertThreshold(ThresholdID)}.
+        \item \texttt{AcknowledgedBy} (FK, NULL): Liên kết tới bảng \texttt{User(UserID)}.
+        \item \texttt{AlertType} (NULL): Phân loại sự kiện cảnh báo.
+        \item \texttt{Severity} (NOT NULL): Mức độ nghiêm trọng.
+        \item \texttt{State} (NOT NULL): Trạng thái xử lý cảnh báo hiện tại.
+        \item \texttt{Message} (NULL): Nội dung chi tiết thông báo.
+        \item \texttt{TriggeredAt} (NOT NULL): Thời điểm kích hoạt cảnh báo.
+        \item \texttt{ResolvedAt} (NULL): Thời điểm xử lý xong cảnh báo.
+    \end{itemize}
+\end{itemize}
+
+\subsection{Phân hệ Incident \& Ticket Field Management}
+\begin{itemize}[leftmargin=2em]
+    \item \textbf{Thực thể \texttt{Incident} (Sự cố hệ thống):}
+    \begin{itemize}
+        \item \texttt{IncidentID} (PK): Mã định danh sự cố.
+        \item \texttt{AlertID} (FK, NULL): Liên kết tới bảng \texttt{Alert(AlertID)}.
+        \item \texttt{CreatedBy} (FK, NOT NULL): Liên kết tới bảng \texttt{User(UserID)}.
+        \item \texttt{Title} (NOT NULL): Tiêu đề sự cố.
+        \item \texttt{Description} (NULL): Mô tả chi tiết sự cố.
+        \item \texttt{Severity} (NOT NULL): Mức độ ảnh hưởng.
+        \item \texttt{Status} (NOT NULL): Trạng thái sự cố.
+        \item \texttt{CreatedAt} (NOT NULL): Thời điểm ghi nhận sự cố.
+        \item \texttt{ResolvedAt} (NULL): Thời điểm khắc phục sự cố.
+    \end{itemize}
+    \item \textbf{Thực thể \texttt{MaintenanceTicket} (Phiếu bảo trì hiện trường):}
+    \begin{itemize}
+        \item \texttt{TicketID} (PK): Mã định danh phiếu bảo trì.
+        \item \texttt{IncidentID} (FK, NULL): Sự cố liên quan.
+        \item \texttt{ServerID} (FK, NOT NULL): Liên kết tới bảng \texttt{Server(ServerID)}.
+        \item \texttt{AssignedTo} (FK, NULL): Kỹ thuật viên chịu trách nhiệm.
+        \item \texttt{CreatedBy} (FK, NOT NULL): Operator phân công phiếu.
+        \item \texttt{Priority} (NULL): Mức độ ưu tiên phiếu bảo trì.
+        \item \texttt{Status} (NOT NULL): Trạng thái phiếu bảo trì.
+        \item \texttt{ScheduledAt} (NULL): Thời gian lên lịch thực hiện.
+        \item \texttt{StartedAt} (NULL): Thời điểm bắt đầu xử lý thực tế.
+        \item \texttt{CompletedAt} (NULL): Thời điểm hoàn tất công việc.
+    \end{itemize}
+    \item \textbf{Thực thể \texttt{MaintenanceLog} (Nhật ký xử lý hiện trường):}
+    \begin{itemize}
+        \item \texttt{LogID} (PK): Mã nhật ký.
+        \item \texttt{TicketID} (FK, NOT NULL): Phiếu bảo trì tương ứng.
+        \item \texttt{TechnicianID} (FK, NOT NULL): Kỹ thuật viên thực hiện.
+        \item \texttt{AssetID} (FK, NULL): Liên kết tới bảng \texttt{Asset(AssetID)}.
+        \item \texttt{ARSessionUsed} (NULL): Thông tin phiên làm việc AR hỗ trợ.
+        \item \texttt{InvestigationNotes} (NULL): Ghi chú quá trình kiểm tra.
+        \item \texttt{RootCause} (NULL): Nguyên nhân gốc rễ sự cố.
+        \item \texttt{CorrectiveAction} (NULL): Biện pháp khắc phục đã áp dụng.
+        \item \texttt{LoggedAt} (NOT NULL): Thời điểm ghi nhận nhật ký.
+    \end{itemize}
+\end{itemize}
+
+\subsection{Phân hệ Asset Lifecycle \& Operational Analytics}
+\begin{itemize}[leftmargin=2em]
+    \item \textbf{Thực thể \texttt{AssetCategory} (Danh mục Tài sản):}
+    \begin{itemize}
+        \item \texttt{CategoryID} (PK): Mã định danh danh mục.
+        \item \texttt{CategoryName} (NOT NULL): Tên danh mục tài sản.
+        \item \texttt{CategoryCode} (NOT NULL): Mã viết tắt danh mục.
+        \item \texttt{Description} (NULL): Mô tả chi tiết danh mục.
+    \end{itemize}
+    \item \textbf{Thực thể \texttt{Asset} (Tài sản Phần cứng):}
+    \begin{itemize}
+        \item \texttt{AssetID} (PK): Mã định danh tài sản.
+        \item \texttt{CategoryID} (FK, NOT NULL): Liên kết tới bảng \texttt{AssetCategory(CategoryID)}.
+        \item \texttt{ServerID} (FK, NULL): Liên kết tới bảng \texttt{Server(ServerID)}.
+        \item \texttt{AssetTag} (NOT NULL): Mã thẻ quản lý tài sản.
+        \item \texttt{AssetName} (NOT NULL): Tên thiết bị tài sản.
+        \item \texttt{SerialNumber} (NOT NULL): Số sê-ri phần cứng.
+        \item \texttt{Manufacturer} (NULL): Hãng sản xuất.
+        \item \texttt{Model} (NULL): Dòng model thiết bị.
+        \item \texttt{CPUModel} (NULL): Thông số dòng CPU.
+        \item \texttt{RAMTotalGB} (NULL): Tổng dung lượng RAM.
+        \item \texttt{StorageTotalGB} (NULL): Tổng dung lượng lưu trữ.
+        \item \texttt{AcquisitionDate} (NULL): Ngày mua sắm thiết bị.
+        \item \texttt{AcquisitionCost} (NULL): Chi phí đầu tư ban đầu.
+        \item \texttt{Status} (NOT NULL): Trạng thái vòng đời tài sản.
+    \end{itemize}
+    \item \textbf{Thực thể \texttt{Warranty} (Bảo hành):}
+    \begin{itemize}
+        \item \texttt{WarrantyID} (PK): Mã định danh hợp đồng bảo hành.
+        \item \texttt{AssetID} (FK, NOT NULL): Liên kết tới bảng \texttt{Asset(AssetID)}.
+        \item \texttt{WarrantyType} (NULL): Hình thức bảo hành.
+        \item \texttt{ProviderName} (NULL): Đơn vị cung cấp bảo hành.
+        \item \texttt{ContractNumber} (NULL): Số hợp đồng bảo hành.
+        \item \texttt{StartDate} (NOT NULL): Ngày bắt đầu hiệu lực.
+        \item \texttt{EndDate} (NOT NULL): Ngày hết hạn bảo hành.
+        \item \texttt{AlertBeforeDays} (NULL): Số ngày cảnh báo trước hạn.
+        \item \texttt{Status} (NOT NULL): Trạng thái bảo hành.
+    \end{itemize}
+    \item \textbf{Thực thể \texttt{AssetStatusChange} (Lịch sử Thay đổi Trạng thái):}
+    \begin{itemize}
+        \item \texttt{ChangeID} (PK): Mã định danh bản ghi thay đổi.
+        \item \texttt{AssetID} (FK, NOT NULL): Liên kết tới bảng \texttt{Asset(AssetID)}.
+        \item \texttt{PreviousStatus} (NULL): Trạng thái cũ trước khi đổi.
+        \item \texttt{NewStatus} (NOT NULL): Trạng thái mới.
+        \item \texttt{Reason} (NULL): Lý do thay đổi trạng thái.
+        \item \texttt{ChangedAt} (NOT NULL): Thời điểm thực hiện thay đổi.
+    \end{itemize}
+\end{itemize}
+
+\subsection{Phân hệ User Identity, RBAC \& Audit Trail}
+\begin{itemize}[leftmargin=2em]
+    \item \textbf{Thực thể \texttt{User} (Tài khoản người dùng):}
+    \begin{itemize}
+        \item \texttt{UserID} (PK): Mã định danh người dùng.
+        \item \texttt{Username} (NOT NULL): Tên tài khoản đăng nhập hệ thống.
+        \item \texttt{PasswordHash} (NOT NULL): Mật khẩu đã mã hóa.
+        \item \texttt{FullName} (NOT NULL): Họ và tên đầy đủ.
+        \item \texttt{Email} (NOT NULL): Thư điện tử liên lạc.
+        \item \texttt{Status} (NOT NULL): Trạng thái tài khoản.
+        \item \texttt{CreatedAt} (NOT NULL): Thời điểm tạo tài khoản.
+    \end{itemize}
+    \item \textbf{Thực thể \texttt{Role} (Vai trò hệ thống):}
+    \begin{itemize}
+        \item \texttt{RoleID} (PK): Mã định danh vai trò.
+        \item \texttt{RoleName} (NOT NULL): Tên vai trò phân quyền.
+        \item \texttt{Description} (NULL): Mô tả phạm vi quyền hạn.
+    \end{itemize}
+    \item \textbf{Thực thể \texttt{UserRole} (Phân quyền Người dùng - Vai trò):}
+    \begin{itemize}
+        \item \texttt{UserRoleID} (PK): Mã định danh quan hệ phân quyền.
+        \item \texttt{UserID} (FK, NOT NULL): Liên kết tới bảng \texttt{User(UserID)}.
+        \item \texttt{RoleID} (FK, NOT NULL): Liên kết tới bảng \texttt{Role(RoleID)}.
+    \end{itemize}
+    \item \textbf{Thực thể \texttt{AuditLog} (Nhật ký Kiểm toán):}
+    \begin{itemize}
+        \item \texttt{LogID} (PK): Mã định danh nhật ký kiểm toán.
+        \item \texttt{UserID} (FK, NULL): Liên kết tới bảng \texttt{User(UserID)}.
+        \item \texttt{Action} (NOT NULL): Hành động thực hiện trên hệ thống.
+        \item \texttt{EntityType} (NULL): Tên loại thực thể bị tác động.
+        \item \texttt{EntityID} (NULL): Mã định danh của thực thể bị tác động.
+        \item \texttt{Timestamp} (NOT NULL): Mốc thời gian diễn ra sự kiện.
+        \item \texttt{IPAddress} (NULL): Địa chỉ IP của nguồn thực hiện thao tác.
+        \item \texttt{Details} (NULL): Chi tiết bổ sung về hành động.
+    \end{itemize}
+\end{itemize}
