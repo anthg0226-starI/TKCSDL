@@ -1,0 +1,23 @@
+Site (1) : (N) Room
+Room (1) : (N) Rack
+Rack (1) : (N) Server
+Server (1) : (N) Workload
+Server (1) : (N) TelemetryMetric
+AlertThreshold (1) : (N) Alert
+Server (1) : (N) Alert
+User (1) : (N) Alert (AcknowledgedBy)
+Alert (1) : (N) Incident
+User (1) : (N) Incident (CreatedBy)
+Server (1) : (N) MaintenanceTicket
+Incident (1) : (N) MaintenanceTicket
+User (1) : (N) MaintenanceTicket (AssignedTo / CreatedBy)
+MaintenanceTicket (1) : (N) MaintenanceLog
+User (1) : (N) MaintenanceLog (TechnicianID)
+Asset (1) : (N) MaintenanceLog
+AssetCategory (1) : (N) Asset
+Server (1) : (N) Asset
+Asset (1) : (N) Warranty
+Asset (1) : (N) AssetStatusChange
+User (1) : (N) UserRole
+Role (1) : (N) UserRole
+User (1) : (N) AuditLog
