@@ -1,34 +1,75 @@
-%Ky Anh
+% Ky Anh
 \section{Các Quy tắc Nghiệp vụ (Business Rules)}
 
-Dưới đây là các quy tắc nghiệp vụ và ràng buộc toàn vẹn áp dụng cho hệ thống cơ sở dữ liệu:
+Để đảm bảo tính toàn vẹn dữ liệu, an toàn vận hành hạ tầng Mini Data Center và tính chính xác của các quy trình giám sát, hệ thống áp dụng các quy tắc nghiệp vụ và ràng buộc toàn vẹn cụ thể như sau:
 
 \subsection{Ràng buộc Miền giá trị (Domain Constraints)}
-\begin{itemize}
-    \item \textbf{Đơn giá sản phẩm/dịch vụ:} Phải có giá trị lớn hơn $0$ ($\text{DonGia} > 0$).
-    \item \textbf{Số lượng tồn kho / Số lượng đặt:} Phải là số nguyên không âm ($\text{SoLuong} \ge 0$).
-    \item \textbf{Email:} Phải đúng định dạng email tiêu chuẩn và là duy nhất (\texttt{UNIQUE}) đối với từng tài khoản/khách hàng.
-    \item \textbf{Số điện thoại:} Phải bao gồm đúng 10 chữ số và bắt đầu bằng số $0$.
+\begin{itemize}[leftmargin=2em]
+    \item \textbf{Cấu hình phần cứng \& Tải trọng:}
+    \begin{itemize}
+        \item Chiều cao tủ Rack (\texttt{Rack.MaxUnit}) và vị trí lắp đặt server (\texttt{Server.UPosition}) phải là các số nguyên dương ($> 0$).
+        \item Tổng dung lượng RAM (\texttt{Asset.RAMTotalGB}) và dung lượng lưu trữ (\texttt{Asset.StorageTotalGB}) phải là số nguyên lớn hơn $0$.
+    \end{itemize}
+    \item \textbf{Chỉ số Telemetry \& Giám sát:}
+    \begin{itemize}
+        \item Mức độ sử dụng CPU (\texttt{TelemetryMetric.CPUUsage}) và RAM (\texttt{TelemetryMetric.RAMUsage}) phải nằm trong khoảng $[0, 100]\%$.
+        \item Lưu lượng mạng (\texttt{TelemetryMetric.NetworkTraffic}) phải có giá trị không âm ($\ge 0$).
+        \item Giá trị ngưỡng cảnh báo mức Nguy hiểm phải lớn hơn mức Cảnh báo (\texttt{AlertThreshold.CriticalValue} $>$ \texttt{AlertThreshold.WarningValue}).
+    \end{itemize}
+    \item \textbf{Định danh \& Tài khoản người dùng:}
+    \begin{itemize}
+        \item Email (\texttt{User.Email}) và Tên đăng nhập (\texttt{User.Username}) phải duy nhất (\texttt{UNIQUE}) trên toàn hệ thống và đúng định dạng chuẩn.
+        \item Mã thẻ tài sản (\texttt{Asset.AssetTag}) và Số sê-ri (\texttt{Asset.SerialNumber}) phải là duy nhất (\texttt{UNIQUE}).
+    \end{itemize}
 \end{itemize}
 
-\subsection{Ràng buộc Khóa và Tham chiếu (Referential Integrity)}
-\begin{itemize}
-    \item Mỗi chi tiết hóa đơn/đơn hàng phải tham chiếu đến một \textbf{Mã hóa đơn} và một \textbf{Mã sản phẩm} hợp lệ đang tồn tại trong hệ thống.
-    \item Khi xóa một danh mục sản phẩm, không thể xóa nếu vẫn còn sản phẩm thuộc danh mục đó (ràng buộc \texttt{ON DELETE RESTRICT}), hoặc phải cập nhật các sản phẩm liên quan về danh mục mặc định.
+\subsection{Ràng buộc Tham chiếu và Toàn vẹn Thực thể (Referential Integrity)}
+\begin{itemize}[leftmargin=2em]
+    \item \textbf{Phân cấp Hạ tầng vất lý:} 
+    \begin{itemize}
+        \item Một phòng máy (\texttt{Room}) bắt buộc phải thuộc một Trung tâm dữ liệu (\texttt{Site}) hợp lệ. Không cho phép xóa \texttt{Site} khi còn tồn tại các \texttt{Room} bên trong (\texttt{ON DELETE RESTRICT}).
+        \item Máy chủ (\texttt{Server}) bắt buộc phải thuộc một tủ Rack (\texttt{Rack}) cụ thể.
+    \end{itemize}
+    \item \textbf{Chuỗi phát sinh Cảnh báo \& Sự cố:}
+    \begin{itemize}
+        \item Bản ghi cảnh báo (\texttt{Alert}) phải tham chiếu tới một máy chủ (\texttt{ServerID}) và một cấu hình ngưỡng (\texttt{ThresholdID}) đang hoạt động.
+        \item Sự cố (\texttt{Incident}) chỉ được khởi tạo khi liên kết tới một \texttt{AlertID} hợp lệ hoặc do một tài khoản người dùng (\texttt{CreatedBy}) có thẩm quyền tạo trực tiếp.
+        \item Phiếu bảo trì (\texttt{MaintenanceTicket}) phải được phân công cho một kỹ thuật viên (\texttt{AssignedTo}) tồn tại trong bảng \texttt{User}.
+    \end{itemize}
 \end{itemize}
 
-\subsection{Ràng buộc Liên thuộc tính / Thời gian (Inter-attribute Constraints)}
-\begin{itemize}
-    \item \textbf{Ngày giao hàng:} Phải lớn hơn hoặc bằng \textbf{Ngày đặt hàng} ($\text{NgayGiao} \ge \text{NgayDat}$).
-    \item \textbf{Thời hạn bảo hành:} Ngày kết thúc bảo hành phải sau ngày bắt đầu bảo hành.
-    \item \textbf{Tổng tiền đơn hàng:} Phải bằng tổng tiền của các chi tiết đơn hàng trừ đi giá trị giảm giá (nếu có):
-    \[
-    \text{TongTien} = \left( \sum \text{SoLuong} \times \text{DonGia} \right) - \text{GiamGia}
-    \]
+\subsection{Ràng buộc Liên thuộc tính \& Logic Thời gian (Temporal & Inter-attribute Constraints)}
+\begin{itemize}[leftmargin=2em]
+    \item \textbf{Vòng đời xử lý Cảnh báo \& Sự cố:}
+    \begin{itemize}
+        \item Thời điểm giải quyết cảnh báo phải sau thời điểm cảnh báo kích hoạt ($\text{Alert.ResolvedAt} \ge \text{Alert.TriggeredAt}$).
+        \item Thời điểm khắc phục sự cố phải sau thời điểm ghi nhận sự cố ($\text{Incident.ResolvedAt} \ge \text{Incident.CreatedAt}$).
+    \end{itemize}
+    \item \textbf{Tiến độ Phiếu bảo trì (Maintenance Ticket):}
+    \begin{itemize}
+        \item Mốc thời gian thực hiện phiếu bảo trì phải tuân theo thứ tự tuyến tính: 
+        \[
+        \text{ScheduledAt} \le \text{StartedAt} \le \text{CompletedAt}
+        \]
+        \item Thời điểm ghi nhật ký bảo trì (\texttt{MaintenanceLog.LoggedAt}) không được sớm hơn thời điểm bắt đầu xử lý phiếu (\texttt{MaintenanceTicket.StartedAt}).
+    \end{itemize}
+    \item \textbf{Thời hạn Bảo hành Tài sản:}
+    \begin{itemize}
+        \item Ngày kết thúc hợp đồng bảo hành phải sau ngày bắt đầu hiệu lực ($\text{Warranty.EndDate} > \text{Warranty.StartDate}$).
+        \item Ngày ghi nhận thay đổi trạng thái tài sản (\texttt{AssetStatusChange.ChangedAt}) phải lớn hơn hoặc bằng ngày mua sắm (\texttt{Asset.AcquisitionDate}).
+    \end{itemize}
 \end{itemize}
 
-\subsection{Ràng buộc Nghiệp vụ đặc thù (Business Logic)}
-\begin{itemize}
-    \item \textbf{Hủy đơn hàng:} Khách hàng chỉ được phép hủy đơn hàng khi trạng thái đơn hàng đang ở mức \textit{"Chờ xử lý"}.
-    \item \textbf{Cập nhật tồn kho:} Ngay khi đơn hàng được xác nhận thành công, số lượng tồn kho của sản phẩm tương ứng phải tự động giảm đi đúng bằng số lượng đặt mua.
+\subsection{Ràng buộc Nghiệp vụ Đơn động & Phân quyền (Operational & RBAC Rules)}
+\begin{itemize}[leftmargin=2em]
+    \item \textbf{Chuyển đổi trạng thái Máy chủ \& Cảnh báo:}
+    \begin{itemize}
+        \item Nếu máy chủ rơi vào trạng thái \textit{"Offline"} hoặc \textit{"Critical"}, hệ thống tự động ngắt trạng thái hoạt động của các \texttt{Workload} chạy trên máy chủ đó.
+        \item Chỉ người dùng (\texttt{User}) có vai trò (\texttt{Role}) là \textit{"Operator"} hoặc \textit{"System Admin"} mới có quyền tiếp nhận (\texttt{AcknowledgedBy}) cảnh báo hoặc đóng sự cố (\texttt{Incident}).
+    \end{itemize}
+    \item \textbf{Kiểm toán vết hệ thống (Audit Trail):}
+    \begin{itemize}
+        \item Mọi thao tác thêm, sửa, xóa tài sản phần cứng (\texttt{Asset}), phân công phiếu bảo trì (\texttt{MaintenanceTicket}) hoặc thay đổi quyền hạn (\texttt{UserRole}) bắt buộc phải tự động kích hoạt ghi bản ghi mới vào nhật ký kiểm toán (\texttt{AuditLog}) với đầy đủ \texttt{UserID}, \texttt{Action}, \texttt{Timestamp} và \texttt{IPAddress}.
+        \item Dữ liệu trong bảng \texttt{AuditLog} chỉ cho phép ghi mới (\texttt{INSERT}), tuyệt đối không cho phép chỉnh sửa (\texttt{UPDATE}) hoặc xóa (\texttt{DELETE}).
+    \end{itemize}
 \end{itemize}
