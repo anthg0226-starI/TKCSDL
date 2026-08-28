@@ -1,24 +1,54 @@
-file này của bạn nào làm phần 2.2 thì tham khảo mối quan hệ ở đây cho dễ vẽ với nhớ đối chiếu với nội dung lại lần nữa
-Site (1) : (N) Room
-Room (1) : (N) Rack
-Rack (1) : (N) Server
-Server (1) : (N) Workload
-Server (1) : (N) TelemetryMetric
-AlertThreshold (1) : (N) Alert
-Server (1) : (N) Alert
-User (1) : (N) Alert (AcknowledgedBy)
-Alert (1) : (N) Incident
-User (1) : (N) Incident (CreatedBy)
-Server (1) : (N) MaintenanceTicket
-Incident (1) : (N) MaintenanceTicket
-User (1) : (N) MaintenanceTicket (AssignedTo / CreatedBy)
-MaintenanceTicket (1) : (N) MaintenanceLog
-User (1) : (N) MaintenanceLog (TechnicianID)
-Asset (1) : (N) MaintenanceLog
-AssetCategory (1) : (N) Asset
-Server (1) : (N) Asset
-Asset (1) : (N) Warranty
-Asset (1) : (N) AssetStatusChange
-User (1) : (N) UserRole
-Role (1) : (N) UserRole
-User (1) : (N) AuditLog
+% Bảo
+\section{Sơ đồ Thực thể Kết hợp (ERD)}
+
+Dựa trên danh sách các thực thể ở phần trước và cấu trúc hạ tầng Mini Data Center, sơ đồ ERD được thiết lập nhằm thể hiện luồng dữ liệu và mối quan hệ giữa các phân hệ. %[cite: 2, 3]
+
+\subsection{Danh sách các Mối quan hệ giữa các Thực thể}
+
+Dưới đây là danh sách 23 mối quan hệ lõi của hệ thống, được đối chiếu chặt chẽ với các quy tắc nghiệp vụ: %[cite: 1, 2]
+
+\begin{table}[H]
+\centering
+\caption{Bảng tổng hợp các mối quan hệ trong sơ đồ ERD}
+\label{tab:erd_relationships}
+\begin{tabular}{|c|l|c|l|p{5cm}|}
+\hline
+\textbf{STT} & \textbf{Thực thể A} & \textbf{Quan hệ} & \textbf{Thực thể B} & \textbf{Ghi chú / Khóa ngoại chính} \\ \hline
+1 & Site & 1 : N & Room & Chứa các phòng máy \\ \hline
+2 & Room & 1 : N & Rack & Chứa các tủ Rack \\ \hline
+3 & Rack & 1 : N & Server & Chứa các máy chủ \\ \hline
+4 & Server & 1 : N & Workload & Chạy các dịch vụ/Container \\ \hline
+5 & Server & 1 : N & TelemetryMetric & Ghi nhận chỉ số đo lường \\ \hline
+6 & AlertThreshold & 1 : N & Alert & Cấu hình ngưỡng cảnh báo \\ \hline
+7 & Server & 1 : N & Alert & Phát sinh cảnh báo \\ \hline
+8 & User & 1 : N & Alert & \texttt{AcknowledgedBy} \\ \hline
+9 & Alert & 1 : N & Incident & Leo thang thành sự cố \\ \hline
+10 & User & 1 : N & Incident & \texttt{CreatedBy} \\ \hline
+11 & Server & 1 : N & MaintenanceTicket & Liên quan đến máy chủ \\ \hline
+12 & Incident & 1 : N & MaintenanceTicket & Khắc phục sự cố \\ \hline
+13 & User & 1 : N & MaintenanceTicket & \texttt{AssignedTo / CreatedBy} \\ \hline
+14 & MaintenanceTicket & 1 : N & MaintenanceLog & Ghi nhận tiến độ xử lý \\ \hline
+15 & User & 1 : N & MaintenanceLog & \texttt{TechnicianID} \\ \hline
+16 & Asset & 1 : N & MaintenanceLog & Tài sản được thao tác \\ \hline
+17 & AssetCategory & 1 : N & Asset & Phân loại tài sản \\ \hline
+18 & Server & 1 : N & Asset & Linh kiện gắn trên Server \\ \hline
+19 & Asset & 1 : N & Warranty & Thông tin bảo hành \\ \hline
+20 & Asset & 1 : N & AssetStatusChange & Lịch sử đổi trạng thái \\ \hline
+21 & User & 1 : N & UserRole & Phân quyền người dùng \\ \hline
+22 & Role & 1 : N & UserRole & Gán vai trò \\ \hline
+23 & User & 1 : N & AuditLog & Ghi vết kiểm toán \\ \hline
+\end{tabular}
+\end{table}
+
+\subsection{Sơ đồ ERD Tổng quan Hệ thống}
+
+Mô hình dữ liệu được quy hoạch xoay quanh 2 trục trung tâm: Trục hạ tầng phần cứng (\texttt{Server}) và Trục vận hành/định danh (\texttt{User}). %[cite: 3]
+Chi tiết thực thể, thuộc tính và bản số quan hệ (Cardinality) được trình bày như Hình \ref{fig:erd_diagram}.
+
+\begin{figure}[H]
+    \centering
+    % Bảo nhớ đưa ảnh vẽ sơ đồ ERD vào thư mục images và đặt tên file là erd_diagram.png nhé
+    \includegraphics[width=1.0\textwidth]{images/erd_diagram.png} 
+    \caption{Sơ đồ Thực thể Kết hợp (ERD) hệ thống Quản lý Mini Data Center}
+    \label{fig:erd_diagram}
+\end{figure}
