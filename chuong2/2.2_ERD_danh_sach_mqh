@@ -1,11 +1,7 @@
 % Bảo
 \section{Sơ đồ Thực thể Kết hợp (ERD)}
 
-Dựa trên danh sách các thực thể ở phần trước và cấu trúc hạ tầng Mini Data Center, sơ đồ ERD được thiết lập nhằm thể hiện luồng dữ liệu và mối quan hệ giữa các phân hệ. %[cite: 2, 3]
-
 \subsection{Danh sách các Mối quan hệ giữa các Thực thể}
-
-Dưới đây là danh sách 23 mối quan hệ lõi của hệ thống, được đối chiếu chặt chẽ với các quy tắc nghiệp vụ: %[cite: 1, 2]
 
 \begin{table}[H]
 \centering
@@ -42,8 +38,6 @@ Dưới đây là danh sách 23 mối quan hệ lõi của hệ thống, đượ
 
 \subsection{Sơ đồ ERD Tổng quan Hệ thống}
 
-Mô hình dữ liệu được quy hoạch xoay quanh 2 trục trung tâm: Trục hạ tầng phần cứng (\texttt{Server}) và Trục vận hành/định danh (\texttt{User}). %[cite: 3]
-Chi tiết thực thể, thuộc tính và bản số quan hệ (Cardinality) được trình bày như Hình \ref{fig:erd_diagram}.
 
 \begin{figure}[H]
     \centering
