@@ -1,0 +1,33 @@
+\section{Các Quy tắc Nghiệp vụ (Business Rules)}
+
+Dưới đây là các quy tắc nghiệp vụ và ràng buộc toàn vẹn áp dụng cho hệ thống cơ sở dữ liệu:
+
+\subsection{Ràng buộc Miền giá trị (Domain Constraints)}
+\begin{itemize}
+    \item \textbf{Đơn giá sản phẩm/dịch vụ:} Phải có giá trị lớn hơn $0$ ($\text{DonGia} > 0$).
+    \item \textbf{Số lượng tồn kho / Số lượng đặt:} Phải là số nguyên không âm ($\text{SoLuong} \ge 0$).
+    \item \textbf{Email:} Phải đúng định dạng email tiêu chuẩn và là duy nhất (\texttt{UNIQUE}) đối với từng tài khoản/khách hàng.
+    \item \textbf{Số điện thoại:} Phải bao gồm đúng 10 chữ số và bắt đầu bằng số $0$.
+\end{itemize}
+
+\subsection{Ràng buộc Khóa và Tham chiếu (Referential Integrity)}
+\begin{itemize}
+    \item Mỗi chi tiết hóa đơn/đơn hàng phải tham chiếu đến một \textbf{Mã hóa đơn} và một \textbf{Mã sản phẩm} hợp lệ đang tồn tại trong hệ thống.
+    \item Khi xóa một danh mục sản phẩm, không thể xóa nếu vẫn còn sản phẩm thuộc danh mục đó (ràng buộc \texttt{ON DELETE RESTRICT}), hoặc phải cập nhật các sản phẩm liên quan về danh mục mặc định.
+\end{itemize}
+
+\subsection{Ràng buộc Liên thuộc tính / Thời gian (Inter-attribute Constraints)}
+\begin{itemize}
+    \item \textbf{Ngày giao hàng:} Phải lớn hơn hoặc bằng \textbf{Ngày đặt hàng} ($\text{NgayGiao} \ge \text{NgayDat}$).
+    \item \textbf{Thời hạn bảo hành:} Ngày kết thúc bảo hành phải sau ngày bắt đầu bảo hành.
+    \item \textbf{Tổng tiền đơn hàng:} Phải bằng tổng tiền của các chi tiết đơn hàng trừ đi giá trị giảm giá (nếu có):
+    \[
+    \text{TongTien} = \left( \sum \text{SoLuong} \times \text{DonGia} \right) - \text{GiamGia}
+    \]
+\end{itemize}
+
+\subsection{Ràng buộc Nghiệp vụ đặc thù (Business Logic)}
+\begin{itemize}
+    \item \textbf{Hủy đơn hàng:} Khách hàng chỉ được phép hủy đơn hàng khi trạng thái đơn hàng đang ở mức \textit{"Chờ xử lý"}.
+    \item \textbf{Cập nhật tồn kho:} Ngay khi đơn hàng được xác nhận thành công, số lượng tồn kho của sản phẩm tương ứng phải tự động giảm đi đúng bằng số lượng đặt mua.
+\end{itemize}
