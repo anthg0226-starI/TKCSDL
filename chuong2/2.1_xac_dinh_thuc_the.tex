@@ -36,9 +36,9 @@ Dựa trên các phân hệ chức năng và phi chức năng của hệ thống
     \begin{itemize}
         \item \texttt{ServerID} (PK): Mã định danh duy nhất của Máy chủ.
         \item \texttt{RackID} (FK, NOT NULL): Khóa ngoại liên kết tới bảng \texttt{Rack(RackID)}.
-        \item \texttt{ServerName} / \texttt{Hostname} (NOT NULL): Tên máy chủ/Node.
+        \item \texttt{ServerName} (NOT NULL): Tên máy chủ/Node.
         \item \texttt{IPAddress} (NOT NULL): Địa chỉ IP quản lý mạng.
-        \item \texttt{QRCodeStamp} / \texttt{MarkerID} (NULL): Mã nhận diện QR Code / ArUco Marker để ứng dụng AR quét thực địa.
+        \item \texttt{QRCodeStamp} (NULL): Mã nhận diện QR Code / ArUco Marker để ứng dụng AR quét thực địa.
         \item \texttt{UPosition} (NULL): Vị trí đặt máy chủ trong tủ Rack.
         \item \texttt{Status} (NOT NULL): Trạng thái hoạt động.
     \end{itemize}
