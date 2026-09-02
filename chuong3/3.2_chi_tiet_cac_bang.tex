@@ -1,1 +1,56 @@
 % Ky Anh
+\subsection{Chi tiết các bảng sau khi chuẩn hóa}
+
+Dựa trên lược đồ tổng hợp ban đầu $\text{BAOCAO}(\text{MSNV}, \text{Ho\_ten}, \text{Ma\_phong}, \text{Ten\_phong}, \text{Ma\_duan}, \text{Ten\_duan}, \text{So\_gio})$ và tập phụ thuộc hàm $F$:
+\begin{align*}
+    F = \{ & \text{MSNV} \rightarrow \text{Ho\_ten}, \text{Ma\_phong}; \\
+           & \text{Ma\_phong} \rightarrow \text{Ten\_phong}; \\
+           & \text{Ma\_duan} \rightarrow \text{Ten\_duan}; \\
+           & (\text{MSNV}, \text{Ma\_duan}) \rightarrow \text{So\_gio} \}
+\end{align*}
+
+Lược đồ ban đầu chỉ đạt **1NF** do tồn tại các phụ thuộc một phần và bắc cầu. Tiến hành phân rã lược đồ để đạt dạng chuẩn **3NF / BCNF** thu được 4 bảng chi tiết như sau:
+
+\subsubsection{1. Bảng Nhân viên (NHANVIEN)}
+\begin{itemize}
+    \item \textbf{Mô tả}: Lưu trữ thông tin định danh và thông tin phòng ban của nhân viên.
+    \item \textbf{Thuộc tính}: $\text{NHANVIEN}(\underline{\text{MSNV}}, \text{Ho\_ten}, \text{Ma\_phong})$
+    \item \textbf{Khóa chính}: $\text{MSNV}$
+    \item \textbf{Khóa ngoại}: $\text{Ma\_phong}$ tham chiếu đến $\text{PHONGBAN}(\text{Ma\_phong})$
+    \item \textbf{Dạng chuẩn}: Đạt **BCNF** (do vế trái $\text{MSNV}$ là siêu khóa của bảng).
+\end{itemize}
+
+\subsubsection{2. Bảng Phòng ban (PHONGBAN)}
+\begin{itemize}
+    \item \textbf{Mô tả}: Lưu trữ tên phòng ban tương ứng với mã phòng ban.
+    \item \textbf{Thuộc tính}: $\text{PHONGBAN}(\underline{\text{Ma\_phong}}, \text{Ten\_phong})$
+    \item \textbf{Khóa chính}: $\text{Ma\_phong}$
+    \item \textbf{Dạng chuẩn}: Đạt **BCNF** (giúp loại bỏ phụ thuộc bắc cầu $\text{MSNV} \rightarrow \text{Ma\_phong} \rightarrow \text{Ten\_phong}$).
+\end{itemize}
+
+\subsubsection{3. Bảng Dự án (DUAN)}
+\begin{itemize}
+    \item \textbf{Mô tả}: Lưu trữ thông tin danh mục các dự án.
+    \item \textbf{Thuộc tính}: $\text{DUAN}(\underline{\text{Ma\_duan}}, \text{Ten\_duan})$
+    \item \textbf{Khóa chính}: $\text{Ma\_duan}$
+    \item \textbf{Dạng chuẩn}: Đạt **BCNF**.
+\end{itemize}
+
+\subsubsection{4. Bảng Phân công (PHANCONG)}
+\begin{itemize}
+    \item \textbf{Mô tả}: Lưu trữ số giờ tham gia của từng nhân viên vào mỗi dự án.
+    \item \textbf{Thuộc tính}: $\text{PHANCONG}(\underline{\text{MSNV}}, \underline{\text{Ma\_duan}}, \text{So\_gio})$
+    \item \textbf{Khóa chính}: $(\text{MSNV}, \text{Ma\_duan})$
+    \item \textbf{Khóa ngoại}: 
+        \begin{itemize}
+            \item $\text{MSNV}$ tham chiếu đến $\text{NHANVIEN}(\text{MSNV})$
+            \item $\text{Ma\_duan}$ tham chiếu đến $\text{DUAN}(\text{Ma\_duan})$
+        \end{itemize}
+    \item \textbf{Dạng chuẩn}: Đạt **BCNF**.
+\end{itemize}
+
+\subsubsection{Đánh giá kết quả phân rã}
+\begin{itemize}
+    \item \textbf{Bảo toàn kết nối (Lossless Join)}: Phân rã bảo toàn kết nối vì khóa của lược đồ ban đầu là $\{\text{MSNV}, \text{Ma\_duan}\}$, nằm trọn trong bảng $\text{PHANCONG}$.
+    \item \textbf{Bảo toàn phụ thuộc hàm (Dependency Preservation)}: Tất cả các phụ thuộc hàm trong $F$ đều được giữ lại trong các bảng tương ứng.
+\end{itemize}
