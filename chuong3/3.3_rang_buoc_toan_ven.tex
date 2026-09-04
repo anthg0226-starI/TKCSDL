@@ -1,1 +1,272 @@
 %hieu
+%hieu
+\subsection{Ràng buộc Toàn vẹn Dữ liệu}
+
+Phần này trình bày chi tiết các ràng buộc toàn vẹn (Integrity Constraints) được áp dụng trên toàn bộ lược đồ cơ sở dữ liệu của hệ thống AR-IMMS, nhằm đảm bảo tính nhất quán, chính xác và hợp lệ của dữ liệu trong suốt vòng đời vận hành. Các ràng buộc được phân loại thành 5 nhóm chính.
+
+%% =============================================
+%% 3.3.1 RÀNG BUỘC KHÓA CHÍNH
+%% =============================================
+\subsubsection{Ràng buộc Khóa chính (Primary Key Constraints)}
+
+Mỗi bảng trong lược đồ đều được xác định một khóa chính duy nhất, đảm bảo mỗi bản ghi có thể được phân biệt một cách chính xác. Tất cả khóa chính đều có ràng buộc \texttt{NOT NULL} và \texttt{UNIQUE} ngầm định.
+
+\begin{table}[H]
+\centering
+\caption{Tổng hợp ràng buộc khóa chính của các bảng}
+\label{tab:pk_constraints}
+\begin{tabular}{|c|l|l|p{5.5cm}|}
+\hline
+\textbf{STT} & \textbf{Bảng} & \textbf{Khóa chính} & \textbf{Ghi chú} \\ \hline
+1 & Site & SiteID & Định danh trung tâm dữ liệu \\ \hline
+2 & Room & RoomID & Định danh phòng máy \\ \hline
+3 & Rack & RackID & Định danh tủ Rack \\ \hline
+4 & Server & ServerID & Nút gốc trung tâm hạ tầng \\ \hline
+5 & Workload & WorkloadID & Định danh khối tải công việc \\ \hline
+6 & TelemetryMetric & MetricID & Định danh bản ghi đo lường \\ \hline
+7 & AlertThreshold & ThresholdID & Định danh cấu hình ngưỡng \\ \hline
+8 & Alert & AlertID & Định danh sự kiện cảnh báo \\ \hline
+9 & Incident & IncidentID & Định danh sự cố \\ \hline
+10 & MaintenanceTicket & TicketID & Định danh phiếu bảo trì \\ \hline
+11 & MaintenanceLog & LogID & Định danh nhật ký xử lý \\ \hline
+12 & AssetCategory & CategoryID & Định danh danh mục tài sản \\ \hline
+13 & Asset & AssetID & Định danh tài sản phần cứng \\ \hline
+14 & Warranty & WarrantyID & Định danh hợp đồng bảo hành \\ \hline
+15 & AssetStatusChange & ChangeID & Định danh bản ghi thay đổi \\ \hline
+16 & User & UserID & Định danh tài khoản người dùng \\ \hline
+17 & Role & RoleID & Định danh vai trò hệ thống \\ \hline
+18 & UserRole & UserRoleID & Định danh phân quyền \\ \hline
+19 & AuditLog & LogID & Định danh nhật ký kiểm toán \\ \hline
+\end{tabular}
+\end{table}
+
+%% =============================================
+%% 3.3.2 RÀNG BUỘC KHÓA NGOẠI
+%% =============================================
+\subsubsection{Ràng buộc Khóa ngoại và Tham chiếu (Foreign Key \& Referential Integrity)}
+
+Các ràng buộc khóa ngoại đảm bảo tính toàn vẹn tham chiếu giữa các bảng, tuân theo mô hình phân cấp hạ tầng và các trục liên kết trung tâm đã thiết kế trong Chương 2. Hành vi xử lý khi xóa/cập nhật bản ghi cha được quy định cụ thể theo ngữ cảnh nghiệp vụ.
+
+\begin{longtable}{|c|l|l|l|l|}
+\caption{Tổng hợp ràng buộc khóa ngoại và hành vi tham chiếu} \label{tab:fk_constraints} \\
+\hline
+\textbf{STT} & \textbf{Bảng con} & \textbf{Cột FK} & \textbf{Bảng cha (PK)} & \textbf{ON DELETE} \\ \hline
+\endfirsthead
+\hline
+\textbf{STT} & \textbf{Bảng con} & \textbf{Cột FK} & \textbf{Bảng cha (PK)} & \textbf{ON DELETE} \\ \hline
+\endhead
+\hline
+\endfoot
+1 & Room & SiteID & Site(SiteID) & RESTRICT \\ \hline
+2 & Rack & RoomID & Room(RoomID) & RESTRICT \\ \hline
+3 & Server & RackID & Rack(RackID) & RESTRICT \\ \hline
+4 & Workload & ServerID & Server(ServerID) & CASCADE \\ \hline
+5 & TelemetryMetric & ServerID & Server(ServerID) & CASCADE \\ \hline
+6 & Alert & ServerID & Server(ServerID) & RESTRICT \\ \hline
+7 & Alert & ThresholdID & AlertThreshold(ThresholdID) & RESTRICT \\ \hline
+8 & Alert & AcknowledgedBy & User(UserID) & SET NULL \\ \hline
+9 & Incident & AlertID & Alert(AlertID) & SET NULL \\ \hline
+10 & Incident & CreatedBy & User(UserID) & RESTRICT \\ \hline
+11 & MaintenanceTicket & IncidentID & Incident(IncidentID) & SET NULL \\ \hline
+12 & MaintenanceTicket & ServerID & Server(ServerID) & RESTRICT \\ \hline
+13 & MaintenanceTicket & AssignedTo & User(UserID) & SET NULL \\ \hline
+14 & MaintenanceTicket & CreatedBy & User(UserID) & RESTRICT \\ \hline
+15 & MaintenanceLog & TicketID & MaintenanceTicket(TicketID) & CASCADE \\ \hline
+16 & MaintenanceLog & TechnicianID & User(UserID) & RESTRICT \\ \hline
+17 & MaintenanceLog & AssetID & Asset(AssetID) & SET NULL \\ \hline
+18 & Asset & CategoryID & AssetCategory(CategoryID) & RESTRICT \\ \hline
+19 & Asset & ServerID & Server(ServerID) & SET NULL \\ \hline
+20 & Warranty & AssetID & Asset(AssetID) & CASCADE \\ \hline
+21 & AssetStatusChange & AssetID & Asset(AssetID) & CASCADE \\ \hline
+22 & UserRole & UserID & User(UserID) & CASCADE \\ \hline
+23 & UserRole & RoleID & Role(RoleID) & RESTRICT \\ \hline
+24 & AuditLog & UserID & User(UserID) & SET NULL \\ \hline
+\end{longtable}
+
+\noindent \textbf{Giải thích hành vi ON DELETE:}
+\begin{itemize}[leftmargin=2em]
+    \item \texttt{RESTRICT}: Không cho phép xóa bản ghi cha khi còn tồn tại bản ghi con tham chiếu. Áp dụng cho các thực thể phân cấp hạ tầng (Site $\rightarrow$ Room $\rightarrow$ Rack $\rightarrow$ Server) nhằm tránh mất dữ liệu cấu hình quan trọng (theo quy tắc BR-1).
+    \item \texttt{CASCADE}: Xóa tự động các bản ghi con khi bản ghi cha bị xóa. Áp dụng cho dữ liệu phụ thuộc hoàn toàn (Workload, TelemetryMetric, MaintenanceLog, Warranty, AssetStatusChange, UserRole).
+    \item \texttt{SET NULL}: Đặt giá trị cột FK thành \texttt{NULL} khi bản ghi cha bị xóa. Áp dụng cho các trường tham chiếu tùy chọn (AcknowledgedBy, AssignedTo, AlertID trong Incident).
+\end{itemize}
+
+%% =============================================
+%% 3.3.3 RÀNG BUỘC MIỀN GIÁ TRỊ
+%% =============================================
+\subsubsection{Ràng buộc Miền giá trị (Domain \& CHECK Constraints)}
+
+Các ràng buộc miền giá trị giới hạn tập giá trị hợp lệ cho từng thuộc tính, bao gồm ràng buộc \texttt{CHECK} cho giá trị số và ràng buộc kiểu liệt kê (\texttt{ENUM} / \texttt{CHECK IN}) cho các trường trạng thái.
+
+\vspace{0.5em}
+\noindent\textbf{a) Ràng buộc giá trị số (Numeric CHECK):}
+
+\begin{longtable}{|l|l|p{6cm}|}
+\caption{Ràng buộc CHECK cho các thuộc tính số} \label{tab:check_numeric} \\
+\hline
+\textbf{Bảng} & \textbf{Thuộc tính} & \textbf{Biểu thức ràng buộc} \\ \hline
+\endfirsthead
+\hline
+\textbf{Bảng} & \textbf{Thuộc tính} & \textbf{Biểu thức ràng buộc} \\ \hline
+\endhead
+\hline
+\endfoot
+Rack & MaxUnit & \texttt{MaxUnit > 0} \\ \hline
+Server & UPosition & \texttt{UPosition > 0} \\ \hline
+TelemetryMetric & CPUUsage & \texttt{CPUUsage >= 0 AND CPUUsage <= 100} \\ \hline
+TelemetryMetric & RAMUsage & \texttt{RAMUsage >= 0 AND RAMUsage <= 100} \\ \hline
+TelemetryMetric & NetworkTraffic & \texttt{NetworkTraffic >= 0} \\ \hline
+AlertThreshold & WarningValue & \texttt{WarningValue > 0} \\ \hline
+AlertThreshold & CriticalValue & \texttt{CriticalValue > WarningValue} \\ \hline
+Asset & RAMTotalGB & \texttt{RAMTotalGB > 0} \\ \hline
+Asset & StorageTotalGB & \texttt{StorageTotalGB > 0} \\ \hline
+Asset & AcquisitionCost & \texttt{AcquisitionCost >= 0} \\ \hline
+Warranty & AlertBeforeDays & \texttt{AlertBeforeDays > 0} \\ \hline
+\end{longtable}
+
+\vspace{0.5em}
+\noindent\textbf{b) Ràng buộc kiểu liệt kê trạng thái (ENUM / CHECK IN):}
+
+Các trường trạng thái được ràng buộc theo tập giá trị hữu hạn, đảm bảo máy trạng thái (state machine) chỉ chấp nhận các giá trị hợp lệ đã quy định trong quy tắc nghiệp vụ.
+
+\begin{longtable}{|l|l|p{7.5cm}|}
+\caption{Ràng buộc ENUM cho các trường trạng thái} \label{tab:check_enum} \\
+\hline
+\textbf{Bảng} & \textbf{Thuộc tính} & \textbf{Tập giá trị hợp lệ} \\ \hline
+\endfirsthead
+\hline
+\textbf{Bảng} & \textbf{Thuộc tính} & \textbf{Tập giá trị hợp lệ} \\ \hline
+\endhead
+\hline
+\endfoot
+Server & Status & \texttt{\{'Online', 'Offline', 'Maintenance', 'Critical', 'Unavailable'\}} \\ \hline
+Workload & Status & \texttt{\{'Running', 'Stopped', 'Error', 'Deploying'\}} \\ \hline
+Alert & Severity & \texttt{\{'Warning', 'Critical'\}} \\ \hline
+Alert & State & \texttt{\{'Open', 'Acknowledged', 'Resolved', 'Closed'\}} (theo BR-3) \\ \hline
+Incident & Severity & \texttt{\{'Low', 'Medium', 'High', 'Critical'\}} \\ \hline
+Incident & Status & \texttt{\{'Open', 'In\_Progress', 'Resolved', 'Closed'\}} \\ \hline
+MaintenanceTicket & Priority & \texttt{\{'Low', 'Medium', 'High', 'Urgent'\}} \\ \hline
+MaintenanceTicket & Status & \texttt{\{'Assigned', 'In\_Progress', 'Pending\_Approval', 'Closed'\}} (theo BR-4) \\ \hline
+Asset & Status & \texttt{\{'Active', 'Spare', 'In\_Repair', 'Decommissioned', 'Disposed'\}} \\ \hline
+Warranty & Status & \texttt{\{'Active', 'Expired', 'Claimed'\}} \\ \hline
+User & Status & \texttt{\{'Active', 'Inactive', 'Locked'\}} \\ \hline
+AlertThreshold & IsActive & \texttt{\{TRUE, FALSE\}} (kiểu BOOLEAN) \\ \hline
+\end{longtable}
+
+%% =============================================
+%% 3.3.4 RÀNG BUỘC DUY NHẤT
+%% =============================================
+\subsubsection{Ràng buộc Duy nhất (UNIQUE Constraints)}
+
+Ngoài khóa chính, một số thuộc tính yêu cầu tính duy nhất trên toàn hệ thống để đảm bảo không trùng lặp dữ liệu định danh.
+
+\begin{table}[H]
+\centering
+\caption{Các ràng buộc UNIQUE trên các bảng}
+\label{tab:unique_constraints}
+\begin{tabular}{|l|l|p{6.5cm}|}
+\hline
+\textbf{Bảng} & \textbf{Thuộc tính} & \textbf{Ý nghĩa nghiệp vụ} \\ \hline
+User & Username & Tên đăng nhập không được trùng lặp \\ \hline
+User & Email & Địa chỉ email duy nhất trên hệ thống \\ \hline
+Server & IPAddress & Một máy chủ có địa chỉ IP quản lý duy nhất \\ \hline
+Server & QRCodeStamp & Mã QR/ArUco Marker duy nhất (theo BR-2) \\ \hline
+Asset & AssetTag & Mã thẻ quản lý tài sản không trùng lặp \\ \hline
+Asset & SerialNumber & Số sê-ri phần cứng duy nhất \\ \hline
+AssetCategory & CategoryCode & Mã viết tắt danh mục không trùng lặp \\ \hline
+UserRole & (UserID, RoleID) & Một người dùng không được gán cùng một vai trò hai lần \\ \hline
+\end{tabular}
+\end{table}
+
+%% =============================================
+%% 3.3.5 RÀNG BUỘC LIÊN THUỘC TÍNH & LOGIC THỜI GIAN
+%% =============================================
+\subsubsection{Ràng buộc Liên thuộc tính và Logic Thời gian (Inter-attribute \& Temporal Constraints)}
+
+Các ràng buộc sau đảm bảo tính nhất quán logic giữa nhiều thuộc tính trong cùng một bản ghi hoặc giữa các bảng liên quan, đặc biệt là các ràng buộc về trình tự thời gian trong vòng đời xử lý.
+
+\vspace{0.5em}
+\noindent\textbf{a) Ràng buộc thứ tự thời gian (Temporal Ordering):}
+
+\begin{longtable}{|l|p{9cm}|}
+\caption{Ràng buộc trình tự thời gian giữa các thuộc tính} \label{tab:temporal_constraints} \\
+\hline
+\textbf{Bảng} & \textbf{Biểu thức ràng buộc} \\ \hline
+\endfirsthead
+\hline
+\textbf{Bảng} & \textbf{Biểu thức ràng buộc} \\ \hline
+\endhead
+\hline
+\endfoot
+Alert & \texttt{ResolvedAt IS NULL OR ResolvedAt >= TriggeredAt} \\ \hline
+Incident & \texttt{ResolvedAt IS NULL OR ResolvedAt >= CreatedAt} \\ \hline
+MaintenanceTicket & \texttt{StartedAt IS NULL OR StartedAt >= ScheduledAt} \\ \hline
+MaintenanceTicket & \texttt{CompletedAt IS NULL OR CompletedAt >= StartedAt} \\ \hline
+MaintenanceLog & \texttt{LoggedAt >= (SELECT StartedAt FROM MaintenanceTicket WHERE TicketID = MaintenanceLog.TicketID)} \\ \hline
+Warranty & \texttt{EndDate > StartDate} \\ \hline
+AssetStatusChange & \texttt{ChangedAt >= (SELECT AcquisitionDate FROM Asset WHERE AssetID = AssetStatusChange.AssetID)} \\ \hline
+\end{longtable}
+
+\vspace{0.5em}
+\noindent\textbf{b) Ràng buộc liên thuộc tính khác (Inter-attribute Logic):}
+
+\begin{itemize}[leftmargin=2em]
+    \item \textbf{Alert -- AcknowledgedBy:} Trường \texttt{AcknowledgedBy} chỉ được phép có giá trị khác \texttt{NULL} khi \texttt{Alert.State} đang ở trạng thái \texttt{'Acknowledged'}, \texttt{'Resolved'} hoặc \texttt{'Closed'}.
+    \[
+    \texttt{State} = \text{'Open'} \implies \texttt{AcknowledgedBy IS NULL}
+    \]
+    
+    \item \textbf{MaintenanceTicket -- AssignedTo:} Khi phiếu bảo trì đang ở trạng thái \texttt{'In\_Progress'}, trường \texttt{AssignedTo} bắt buộc phải có giá trị (không được \texttt{NULL}).
+    \[
+    \texttt{Status} = \text{'In\_Progress'} \implies \texttt{AssignedTo IS NOT NULL}
+    \]
+    
+    \item \textbf{MaintenanceTicket -- CompletedAt:} Trường \texttt{CompletedAt} chỉ được phép có giá trị khi phiếu ở trạng thái \texttt{'Pending\_Approval'} hoặc \texttt{'Closed'}.
+    \[
+    \texttt{CompletedAt IS NOT NULL} \implies \texttt{Status} \in \{\text{'Pending\_Approval'},\ \text{'Closed'}\}
+    \]
+    
+    \item \textbf{Incident -- ResolvedAt:} Trường \texttt{ResolvedAt} chỉ có giá trị khi sự cố đã được xử lý.
+    \[
+    \texttt{ResolvedAt IS NOT NULL} \implies \texttt{Status} \in \{\text{'Resolved'},\ \text{'Closed'}\}
+    \]
+    
+    \item \textbf{Server -- Workload cascade (BR-1, Quy tắc nghiệp vụ):} Khi trạng thái máy chủ chuyển sang \texttt{'Offline'} hoặc \texttt{'Critical'}, tất cả \texttt{Workload} đang chạy trên máy chủ đó phải tự động chuyển trạng thái sang \texttt{'Stopped'}. Ràng buộc này được thực thi thông qua Trigger cơ sở dữ liệu.
+\end{itemize}
+
+\vspace{0.5em}
+\noindent\textbf{c) Ràng buộc bất biến dữ liệu (Immutability):}
+
+\begin{itemize}[leftmargin=2em]
+    \item \textbf{AuditLog (BR-10):} Bảng \texttt{AuditLog} chỉ cho phép thao tác \texttt{INSERT}. Mọi thao tác \texttt{UPDATE} hoặc \texttt{DELETE} trên bảng này đều bị từ chối bởi Trigger bảo vệ.
+    \item \textbf{TelemetryMetric:} Các bản ghi telemetry sau khi được ghi nhận không được phép chỉnh sửa (\texttt{UPDATE}) nhằm đảm bảo tính trung thực của dữ liệu chuỗi thời gian.
+\end{itemize}
+
+\vspace{0.5em}
+\noindent\textbf{d) Ràng buộc máy trạng thái -- chuyển trạng thái hợp lệ (State Machine Constraints):}
+
+Dựa trên các quy tắc nghiệp vụ BR-3 và BR-4, các chuyển đổi trạng thái chỉ được phép theo chiều thuận, không cho phép quay ngược. Các ràng buộc này được thực thi thông qua Trigger \texttt{BEFORE UPDATE}.
+
+\begin{itemize}[leftmargin=2em]
+    \item \textbf{Alert.State (BR-3):} Chỉ cho phép các chuyển trạng thái hợp lệ:
+    \[
+    \texttt{Open} \rightarrow \texttt{Acknowledged} \rightarrow \texttt{Resolved} \rightarrow \texttt{Closed}
+    \]
+    
+    \item \textbf{MaintenanceTicket.Status (BR-4):} Chỉ cho phép:
+    \[
+    \texttt{Assigned} \rightarrow \texttt{In\_Progress} \rightarrow \texttt{Pending\_Approval} \rightarrow \texttt{Closed}
+    \]
+    
+    \item \textbf{Incident.Status:} Chỉ cho phép:
+    \[
+    \texttt{Open} \rightarrow \texttt{In\_Progress} \rightarrow \texttt{Resolved} \rightarrow \texttt{Closed}
+    \]
+\end{itemize}
+
+\vspace{0.5em}
+\noindent\textbf{e) Ràng buộc phân quyền nghiệp vụ (RBAC Business Constraints):}
+
+\begin{itemize}[leftmargin=2em]
+    \item \textbf{Xác nhận cảnh báo (BR-5):} Chỉ \texttt{User} có \texttt{Role} là \textit{``Operator''} hoặc \textit{``System Admin''} mới được phép cập nhật trường \texttt{Alert.AcknowledgedBy} và chuyển trạng thái \texttt{Alert.State} sang \texttt{'Acknowledged'}.
+    \item \textbf{Phê duyệt đóng phiếu (BR-5):} Chỉ \texttt{User} có \texttt{Role} là \textit{``Operator''} mới được phép chuyển trạng thái \texttt{MaintenanceTicket.Status} từ \texttt{'Pending\_Approval'} sang \texttt{'Closed'}. Kỹ thuật viên (\textit{Technician}) chỉ được phép chuyển sang \texttt{'Pending\_Approval'}.
+\end{itemize}
