@@ -1,56 +1,98 @@
 % Ky Anh
-\subsection{Chi tiết các bảng sau khi chuẩn hóa}
+\documentclass[12pt,a4paper]{article}
 
-Dựa trên lược đồ tổng hợp ban đầu $\text{BAOCAO}(\text{MSNV}, \text{Ho\_ten}, \text{Ma\_phong}, \text{Ten\_phong}, \text{Ma\_duan}, \text{Ten\_duan}, \text{So\_gio})$ và tập phụ thuộc hàm $F$:
-\begin{align*}
-    F = \{ & \text{MSNV} \rightarrow \text{Ho\_ten}, \text{Ma\_phong}; \\
-           & \text{Ma\_phong} \rightarrow \text{Ten\_phong}; \\
-           & \text{Ma\_duan} \rightarrow \text{Ten\_duan}; \\
-           & (\text{MSNV}, \text{Ma\_duan}) \rightarrow \text{So\_gio} \}
-\end{align*}
+% --- KHU VỰC PREAMBLE ---
+\usepackage[utf8]{vietnam}
+\usepackage{amsmath,amssymb}
+\usepackage{hyperref}
+\usepackage{geometry}
+\geometry{a4paper, margin=2cm}
+\usepackage{float}
+\usepackage{tabularx}
 
-Lược đồ ban đầu chỉ đạt **1NF** do tồn tại các phụ thuộc một phần và bắc cầu. Tiến hành phân rã lược đồ để đạt dạng chuẩn **3NF / BCNF** thu được 4 bảng chi tiết như sau:
+\begin{document}
 
-\subsubsection{1. Bảng Nhân viên (NHANVIEN)}
-\begin{itemize}
-    \item \textbf{Mô tả}: Lưu trữ thông tin định danh và thông tin phòng ban của nhân viên.
-    \item \textbf{Thuộc tính}: $\text{NHANVIEN}(\underline{\text{MSNV}}, \text{Ho\_ten}, \text{Ma\_phong})$
-    \item \textbf{Khóa chính}: $\text{MSNV}$
-    \item \textbf{Khóa ngoại}: $\text{Ma\_phong}$ tham chiếu đến $\text{PHONGBAN}(\text{Ma\_phong})$
-    \item \textbf{Dạng chuẩn}: Đạt **BCNF** (do vế trái $\text{MSNV}$ là siêu khóa của bảng).
-\end{itemize}
+\section*{3.2 Chi tiết các bảng sau khi chuẩn hóa}
 
-\subsubsection{2. Bảng Phòng ban (PHONGBAN)}
-\begin{itemize}
-    \item \textbf{Mô tả}: Lưu trữ tên phòng ban tương ứng với mã phòng ban.
-    \item \textbf{Thuộc tính}: $\text{PHONGBAN}(\underline{\text{Ma\_phong}}, \text{Ten\_phong})$
-    \item \textbf{Khóa chính}: $\text{Ma\_phong}$
-    \item \textbf{Dạng chuẩn}: Đạt **BCNF** (giúp loại bỏ phụ thuộc bắc cầu $\text{MSNV} \rightarrow \text{Ma\_phong} \rightarrow \text{Ten\_phong}$).
-\end{itemize}
+Dựa trên quá trình phân rã và thiết kế mô hình quan hệ cho hệ thống quản lý hạ tầng Mini Data Center (AR-IMMS), toàn bộ hệ thống được tổ chức thành 19 bảng thuộc 4 phân hệ chức năng. Các bảng được chuẩn hóa đạt dạng chuẩn \textbf{BCNF / 3NF} nhằm triệt tiêu dư thừa dữ liệu và đảm bảo tính toàn vẹn tham chiếu.
 
-\subsubsection{3. Bảng Dự án (DUAN)}
-\begin{itemize}
-    \item \textbf{Mô tả}: Lưu trữ thông tin danh mục các dự án.
-    \item \textbf{Thuộc tính}: $\text{DUAN}(\underline{\text{Ma\_duan}}, \text{Ten\_duan})$
-    \item \textbf{Khóa chính}: $\text{Ma\_duan}$
-    \item \textbf{Dạng chuẩn}: Đạt **BCNF**.
-\end{itemize}
+\subsection*{3.2.1 Phân hệ Hạ tầng \& Không gian Vật lý}
 
-\subsubsection{4. Bảng Phân công (PHANCONG)}
-\begin{itemize}
-    \item \textbf{Mô tả}: Lưu trữ số giờ tham gia của từng nhân viên vào mỗi dự án.
-    \item \textbf{Thuộc tính}: $\text{PHANCONG}(\underline{\text{MSNV}}, \underline{\text{Ma\_duan}}, \text{So\_gio})$
-    \item \textbf{Khóa chính}: $(\text{MSNV}, \text{Ma\_duan})$
-    \item \textbf{Khóa ngoại}: 
-        \begin{itemize}
-            \item $\text{MSNV}$ tham chiếu đến $\text{NHANVIEN}(\text{MSNV})$
-            \item $\text{Ma\_duan}$ tham chiếu đến $\text{DUAN}(\text{Ma\_duan})$
-        \end{itemize}
-    \item \textbf{Dạng chuẩn}: Đạt **BCNF**.
-\end{itemize}
+\begin{table}[H]
+\centering
+\caption{Chi tiết cấu trúc các bảng thuộc Phân hệ Hạ tầng \& Không gian Vật lý}
+\label{tab:ph_hatang}
+\small
+\begin{tabularx}{\textwidth}{|c|l|X|X|c|}
+\hline
+\textbf{STT} & \textbf{Tên bảng} & \textbf{Cấu trúc thuộc tính (PK / FK)} & \textbf{Mô tả nghiệp vụ} & \textbf{Chuẩn} \\ \hline
+1 & \texttt{Site} & \underline{\texttt{SiteID}}, \texttt{SiteName}, \texttt{Location}, \texttt{Description} & Lưu trữ vị trí các trung tâm dữ liệu vật lý. & BCNF \\ \hline
+2 & \texttt{Room} & \underline{\texttt{RoomID}}, \texttt{RoomName}, \texttt{Floor}, \texttt{SiteID} (FK) & Quản lý phòng máy chuyên dụng thuộc một Site. & BCNF \\ \hline
+3 & \texttt{Rack} & \underline{\texttt{RackID}}, \texttt{RackName}, \texttt{MaxUnit}, \texttt{RoomID} (FK) & Quản lý tủ rack chứa thiết bị trong phòng máy. & BCNF \\ \hline
+4 & \texttt{Server} & \underline{\texttt{ServerID}}, \texttt{ServerName}, \texttt{IPAddress}, \texttt{UPosition}, \texttt{Status}, \texttt{QRCodeStamp}, \texttt{RackID} (FK) & Quản lý máy chủ vật lý lắp đặt trong tủ Rack. & BCNF \\ \hline
+5 & \texttt{Workload} & \underline{\texttt{WorkloadID}}, \texttt{WorkloadName}, \texttt{Type}, \texttt{Status}, \texttt{ServerID} (FK) & Quản lý các dịch vụ ảo hóa, container trên máy chủ. & BCNF \\ \hline
+\end{tabularx}
+\end{table}
 
-\subsubsection{Đánh giá kết quả phân rã}
-\begin{itemize}
-    \item \textbf{Bảo toàn kết nối (Lossless Join)}: Phân rã bảo toàn kết nối vì khóa của lược đồ ban đầu là $\{\text{MSNV}, \text{Ma\_duan}\}$, nằm trọn trong bảng $\text{PHANCONG}$.
-    \item \textbf{Bảo toàn phụ thuộc hàm (Dependency Preservation)}: Tất cả các phụ thuộc hàm trong $F$ đều được giữ lại trong các bảng tương ứng.
-\end{itemize}
+\subsection*{3.2.2 Phân hệ Giám sát \& Vận hành Hệ thống}
+
+\begin{table}[H]
+\centering
+\caption{Chi tiết cấu trúc các bảng thuộc Phân hệ Giám sát \& Vận hành}
+\label{tab:ph_giamsat}
+\small
+\begin{tabularx}{\textwidth}{|c|l|X|X|c|}
+\hline
+\textbf{STT} & \textbf{Tên bảng} & \textbf{Cấu trúc thuộc tính (PK / FK)} & \textbf{Mô tả nghiệp vụ} & \textbf{Chuẩn} \\ \hline
+6 & \texttt{TelemetryMetric} & \underline{\texttt{MetricID}}, \texttt{CPUUsage}, \texttt{RAMUsage}, \texttt{NetworkTraffic}, \texttt{RecordedAt}, \texttt{ServerID} (FK) & Ghi nhận chỉ số hiệu năng theo chuỗi thời gian real-time. & BCNF \\ \hline
+7 & \texttt{AlertThreshold} & \underline{\texttt{ThresholdID}}, \texttt{MetricType}, \texttt{WarningValue}, \texttt{CriticalValue}, \texttt{IsActive} & Cấu hình các ngưỡng cảnh báo động cho chỉ số. & BCNF \\ \hline
+8 & \texttt{Alert} & \underline{\texttt{AlertID}}, \texttt{Severity}, \texttt{State}, \texttt{TriggeredAt}, \texttt{ResolvedAt}, \texttt{ServerID} (FK), \texttt{ThresholdID} (FK), \texttt{AcknowledgedBy} (FK) & Ghi nhận sự kiện cảnh báo phát sinh khi vượt ngưỡng. & BCNF \\ \hline
+9 & \texttt{Incident} & \underline{\texttt{IncidentID}}, \texttt{Title}, \texttt{Severity}, \texttt{Status}, \texttt{CreatedAt}, \texttt{ResolvedAt}, \texttt{AlertID} (FK), \texttt{CreatedBy} (FK) & Quản lý sự cố nghiêm trọng cần xử lý cấp thiết. & BCNF \\ \hline
+10 & \texttt{MaintainTicket} & \underline{\texttt{TicketID}}, \texttt{Title}, \texttt{Priority}, \texttt{Status}, \texttt{ScheduledAt}, \texttt{StartedAt}, \texttt{CompletedAt}, \texttt{IncidentID} (FK), \texttt{ServerID} (FK), \texttt{AssignedTo} (FK), \texttt{CreatedBy} (FK) & Lập phiếu và theo dõi vòng đời bảo trì thiết bị. & BCNF \\ \hline
+11 & \texttt{MaintenanceLog} & \underline{\texttt{LogID}}, \texttt{Note}, \texttt{LoggedAt}, \texttt{ARSessionUsed}, \texttt{TicketID} (FK), \texttt{TechnicianID} (FK), \texttt{AssetID} (FK) & Chi tiết nhật ký xử lý kỹ thuật và thao tác kính AR. & BCNF \\ \hline
+\end{tabularx}
+\end{table}
+
+\subsection*{3.2.3 Phân hệ Quản lý Tài sản \& Bảo hành}
+
+\begin{table}[H]
+\centering
+\caption{Chi tiết cấu trúc các bảng thuộc Phân hệ Quản lý Tài sản \& Bảo hành}
+\label{tab:ph_taisan}
+\small
+\begin{tabularx}{\textwidth}{|c|l|X|X|c|}
+\hline
+\textbf{STT} & \textbf{Tên bảng} & \textbf{Cấu trúc thuộc tính (PK / FK)} & \textbf{Mô tả nghiệp vụ} & \textbf{Chuẩn} \\ \hline
+12 & \texttt{AssetCategory} & \underline{\texttt{CategoryID}}, \texttt{CategoryCode}, \texttt{CategoryName} & Danh mục phân loại tài sản phần cứng. & BCNF \\ \hline
+13 & \texttt{Asset} & \underline{\texttt{AssetID}}, \texttt{AssetTag}, \texttt{SerialNumber}, \texttt{Status}, \texttt{AcquisitionDate}, \texttt{AcquisitionCost}, \texttt{RAMTotalGB}, \texttt{StorageTotalGB}, \texttt{CategoryID} (FK), \texttt{ServerID} (FK) & Quản lý thông tin chi tiết từng tài sản vật lý. & BCNF \\ \hline
+14 & \texttt{Warranty} & \underline{\texttt{WarrantyID}}, \texttt{Provider}, \texttt{StartDate}, \texttt{EndDate}, \texttt{AlertBeforeDays}, \texttt{Status}, \texttt{AssetID} (FK) & Theo dõi thời hạn bảo hành với nhà cung cấp. & BCNF \\ \hline
+15 & \texttt{AssetStatusChange} & \underline{\texttt{ChangeID}}, \texttt{OldStatus}, \texttt{NewStatus}, \texttt{ChangedAt}, \texttt{Reason}, \texttt{AssetID} (FK) & Lịch sử biến động trạng thái tài sản theo thời gian. & BCNF \\ \hline
+\end{tabularx}
+\end{table}
+
+\subsection*{3.2.4 Phân hệ Bảo mật, Phân quyền \& Kiểm toán}
+
+\begin{table}[H]
+\centering
+\caption{Chi tiết cấu trúc các bảng thuộc Phân hệ Bảo mật, Phân quyền \& Kiểm toán}
+\label{tab:ph_baomat}
+\small
+\begin{tabularx}{\textwidth}{|c|l|X|X|c|}
+\hline
+\textbf{STT} & \textbf{Tên bảng} & \textbf{Cấu trúc thuộc tính (PK / FK)} & \textbf{Mô tả nghiệp vụ} & \textbf{Chuẩn} \\ \hline
+16 & \texttt{User} & \underline{\texttt{UserID}}, \texttt{Username}, \texttt{PasswordHash}, \texttt{FullName}, \texttt{Email}, \texttt{Status} & Quản lý thông tin tài khoản người dùng. & BCNF \\ \hline
+17 & \texttt{Role} & \underline{\texttt{RoleID}}, \texttt{RoleName}, \texttt{Description} & Định nghĩa các vai trò chức năng hệ thống. & BCNF \\ \hline
+18 & \texttt{UserRole} & \underline{\texttt{UserRoleID}}, \texttt{UserID} (FK), \texttt{RoleID} (FK) & Bảng trung gian phân quyền nhiều - nhiều ($N-M$). & BCNF \\ \hline
+19 & \texttt{AuditLog} & \underline{\texttt{LogID}}, \texttt{Action}, \texttt{EntityName}, \texttt{EntityID}, \texttt{IPAddress}, \texttt{Timestamp}, \texttt{UserID} (FK) & Lưu nhật ký kiểm toán và truy vết thao tác. & BCNF \\ \hline
+\end{tabularx}
+\end{table}
+
+\subsection*{3.2.5 Đánh giá Dạng chuẩn toàn hệ thống}
+Tất cả 19 bảng đều đạt dạng chuẩn \textbf{BCNF} (Boyce-Codd Normal Form) do thỏa mãn:
+\begin{enumerate}
+    \item Đạt chuẩn 1NF, 2NF và 3NF (không tồn tại phụ thuộc hàm một phần hay bắc cầu).
+    \item Mọi vế trái $X$ của phụ thuộc hàm không tầm thường $X \rightarrow Y$ trong các bảng đều là siêu khóa (Superkey).
+    \item Quá trình phân rã bảo toàn hoàn toàn tập phụ thuộc hàm và không làm mất thông tin (Lossless Join).
+\end{enumerate}
+
+\end{document}
