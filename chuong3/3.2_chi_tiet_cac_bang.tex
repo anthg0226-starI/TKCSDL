@@ -1,22 +1,9 @@
 % Ky Anh
-\documentclass[12pt,a4paper]{article}
-
-% --- KHU VỰC PREAMBLE ---
-\usepackage[utf8]{vietnam}
-\usepackage{amsmath,amssymb}
-\usepackage{hyperref}
-\usepackage{geometry}
-\geometry{a4paper, margin=2cm}
-\usepackage{float}
-\usepackage{tabularx}
-
-\begin{document}
-
-\section*{3.2 Chi tiết các bảng sau khi chuẩn hóa}
+\section{Chi tiết các bảng sau khi chuẩn hóa}
 
 Dựa trên quá trình phân rã và thiết kế mô hình quan hệ cho hệ thống quản lý hạ tầng Mini Data Center (AR-IMMS), toàn bộ hệ thống được tổ chức thành 19 bảng thuộc 4 phân hệ chức năng. Các bảng được chuẩn hóa đạt dạng chuẩn \textbf{BCNF / 3NF} nhằm triệt tiêu dư thừa dữ liệu và đảm bảo tính toàn vẹn tham chiếu.
 
-\subsection*{3.2.1 Phân hệ Hạ tầng \& Không gian Vật lý}
+\subsection{Phân hệ Hạ tầng \& Không gian Vật lý}
 
 \begin{table}[H]
 \centering
@@ -34,7 +21,7 @@ Dựa trên quá trình phân rã và thiết kế mô hình quan hệ cho hệ 
 \end{tabularx}
 \end{table}
 
-\subsection*{3.2.2 Phân hệ Giám sát \& Vận hành Hệ thống}
+\subsection{Phân hệ Giám sát \& Vận hành Hệ thống}
 
 \begin{table}[H]
 \centering
@@ -53,7 +40,7 @@ Dựa trên quá trình phân rã và thiết kế mô hình quan hệ cho hệ 
 \end{tabularx}
 \end{table}
 
-\subsection*{3.2.3 Phân hệ Quản lý Tài sản \& Bảo hành}
+\subsection{Phân hệ Quản lý Tài sản \& Bảo hành}
 
 \begin{table}[H]
 \centering
@@ -70,7 +57,7 @@ Dựa trên quá trình phân rã và thiết kế mô hình quan hệ cho hệ 
 \end{tabularx}
 \end{table}
 
-\subsection*{3.2.4 Phân hệ Bảo mật, Phân quyền \& Kiểm toán}
+\subsection{Phân hệ Bảo mật, Phân quyền \& Kiểm toán}
 
 \begin{table}[H]
 \centering
@@ -87,12 +74,10 @@ Dựa trên quá trình phân rã và thiết kế mô hình quan hệ cho hệ 
 \end{tabularx}
 \end{table}
 
-\subsection*{3.2.5 Đánh giá Dạng chuẩn toàn hệ thống}
+\subsection{Đánh giá Dạng chuẩn toàn hệ thống}
 Tất cả 19 bảng đều đạt dạng chuẩn \textbf{BCNF} (Boyce-Codd Normal Form) do thỏa mãn:
 \begin{enumerate}
     \item Đạt chuẩn 1NF, 2NF và 3NF (không tồn tại phụ thuộc hàm một phần hay bắc cầu).
     \item Mọi vế trái $X$ của phụ thuộc hàm không tầm thường $X \rightarrow Y$ trong các bảng đều là siêu khóa (Superkey).
     \item Quá trình phân rã bảo toàn hoàn toàn tập phụ thuộc hàm và không làm mất thông tin (Lossless Join).
 \end{enumerate}
-
-\end{document}
