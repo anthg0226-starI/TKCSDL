@@ -14,6 +14,14 @@ Kết quả phân tích ở mục này là đầu vào trực tiếp để xác 
 \subsection{Yêu cầu chức năng}
 Hệ thống AR-IMMS phục vụ bốn nhóm tác nhân: \textit{Quản trị viên Hệ thống} (System Administrator), \textit{Vận hành viên} (System Operator), \textit{Kỹ thuật viên hiện trường} (Technician) và \textit{Hệ thống Giám sát \& Cảnh báo Tự động} (Automated Monitoring \& Alerting System). Mỗi nhóm tác nhân tương tác với các phân hệ dữ liệu khác nhau; việc tách biệt rõ ràng giúp xác định phạm vi truy cập và luồng dữ liệu phục vụ thiết kế mô hình RBAC trong CSDL.
 
+Trên cơ sở tổng hợp các yêu cầu chức năng cho từng nhóm tác nhân, hệ thống được mô hình hóa tổng quan thông qua Sơ đồ Use Case dưới đây nhằm minh họa ranh giới hoạt động, các tác nhân và các mối quan hệ logic quan trọng giữa các chức năng:
+
+\begin{center}
+    \includegraphics[width=0.95\textwidth]{images/usecase_diagram.png}
+    \vspace{0.3em}
+    \textup{Hình 1.1 -- Sơ đồ Use Case tổng quan hệ thống AR-IMMS}
+\end{center}
+
 % ---- 1.5.1.1 Quản trị viên Hệ thống ----
 \subsubsection{Quản trị viên Hệ thống (System Administrator)}
 \begin{enumerate}[label=\textbf{FA-\arabic*}., leftmargin=2.5em]
