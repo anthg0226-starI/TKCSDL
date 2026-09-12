@@ -1,19 +1,30 @@
 % Phuong
+% Phuong
 \section{Sơ đồ Thực thể Kết hợp (ERD)}
 
 Dựa trên danh sách các thực thể, thuộc tính đã xác định và mô hình bài toán quản lý hạ tầng Mini Data Center, sơ đồ thực thể Kết hợp ERD được thiết lập nhằm thể hiện cấu trúc lưu trữ và các mối quan hệ giữa các phân hệ trong hệ thống.
 
 \subsection{Danh sách các Mối quan hệ giữa các Thực thể}
 
-Hệ thống bao gồm 16 mối quan hệ chính giữa các thực thể, đảm bảo tính toàn vẹn dữ liệu từ hạ tầng vật lý đến các tác vụ vận hành thực địa:
+Hệ thống bao gồm 23 mối quan hệ chính giữa các thực thể, đảm bảo tính toàn vẹn dữ liệu từ hạ tầng vật lý đến các tác vụ vận hành thực địa:
 
-\begin{table}[H]
-\centering
-\caption{Bảng tổng hợp các mối quan hệ trong sơ đồ ERD}
-\label{tab:erd_relationships}
-\begin{tabular}{|c|l|c|l|p{4.5cm}|}
+\begin{longtable}{|c|l|c|l|p{6cm}|}
+\caption{Bảng tổng hợp các mối quan hệ trong sơ đồ ERD} \label{tab:erd_relationships} \\
 \hline
 \textbf{STT} & \textbf{Thực thể A} & \textbf{Quan hệ (A : B)} & \textbf{Thực thể B} & \textbf{Ý nghĩa nghiệp vụ} \\ \hline
+\endfirsthead
+
+\multicolumn{5}{c}{{\tablename\ \thetable{} -- Tiếp theo từ trang trước}} \\
+\hline
+\textbf{STT} & \textbf{Thực thể A} & \textbf{Quan hệ (A : B)} & \textbf{Thực thể B} & \textbf{Ý nghĩa nghiệp vụ} \\ \hline
+\endhead
+
+\hline \multicolumn{5}{r}{{Xem tiếp trang sau}} \\
+\endfoot
+
+\hline
+\endlastfoot
+
 1 & Site & 1 : N & Room & Một trung tâm dữ liệu chứa nhiều phòng máy. \\ \hline
 2 & Room & 1 : N & Rack & Một phòng máy chứa nhiều tủ Rack. \\ \hline
 3 & Rack & 1 : N & Server & Một tủ Rack chứa nhiều máy chủ vật lý. \\ \hline
@@ -37,8 +48,7 @@ Hệ thống bao gồm 16 mối quan hệ chính giữa các thực thể, đả
 21 & User & 1 : N & UserRole & Một người dùng có thể đảm nhận nhiều vai trò. \\ \hline
 22 & Role & 1 : N & UserRole & Một vai trò có thể được gán cho nhiều người dùng. \\ \hline
 23 & User & 1 : N & AuditLog & Một người dùng thực hiện nhiều thao tác lưu trong nhật ký kiểm toán. \\ \hline
-\end{tabular}
-\end{table}
+\end{longtable}
 
 \subsection{Các Trục Liên kết Trung tâm}
 
@@ -54,7 +64,7 @@ Mô hình ERD được thiết kế tối ưu xoay quanh 2 trục dữ liệu c�
 Sơ đồ ERD thể hiện chi tiết danh sách thực thể, thuộc tính (khóa chính PK, khóa ngoại FK) cùng bản thể quan hệ (Cardinality) được trình bày như Hình \ref{fig:erd_diagram}.
 
 \begin{figure}[H]
-    \centering
+    centering
     % Bạn hãy thay tên file ảnh sơ đồ vẽ được từ Draw.io / Lucidchart vào đây
     \includegraphics[width=1.0\textwidth]{images/erd_diagram.png} 
     \caption{Sơ đồ Thực thể Kết hợp (ERD) hệ thống Quản lý Mini Data Center}
