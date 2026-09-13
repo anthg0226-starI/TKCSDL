@@ -6,7 +6,7 @@ GO
 USE DataCenterManagement_DB;
 GO
 
--- TẠO CẤU TRÚC BẢNG (ĐÃ ĐỒNG NHẤT VỚI SCHEMAS)
+-- TẠO CẤU TRÚC BẢNG
 
 CREATE TABLE Site (
     SiteID VARCHAR(36) PRIMARY KEY,
@@ -196,7 +196,7 @@ CREATE TABLE AuditLog (
 GO
 
 
--- CHÈN DỮ LIỆU MẪU (DML)
+-- CHÈN DỮ LIỆU MẪU
 INSERT INTO Site (SiteID, SiteName, Location, Description) VALUES
 ('S001', 'DC Ho Chi Minh Q1', '123 Nguyen Hue, Q1, TP.HCM', 'Trung tâm dữ liệu chính miền Nam'),
 ('S002', 'DC Ha Noi Cau Giay', '45 Duy Tan, Cau Giay, Ha Noi', 'Trung tâm dữ liệu chính miền Bắc'),
@@ -311,7 +311,7 @@ INSERT INTO AuditLog (LogID, IncidentID, UserID, Action, EntityType, EntityID, T
 ('LOG_A4', 'INC003', 'USR002', 'INSERT', 'Incident', 'INC003', '2026-09-13 11:10:00', '192.168.1.110', 'Phat sinh su co RAM server DB');
 GO
 
--- TRUY VẤN KIỂM TRA (Đã bỏ dấu chấm phẩy thừa ở đoạn JOIN)
+-- TRUY VẤN KIỂM TRA
 SELECT 
     [User].UserID, 
     [User].FullName, 
