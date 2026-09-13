@@ -6,7 +6,7 @@ GO
 USE DataCenterManagement_DB;
 GO
 
--- TẠO CẤU TRÚC BẢNG
+-- TẠO CẤU TRÚC BẢNG (ĐÃ ĐỒNG NHẤT VỚI SCHEMAS)
 
 CREATE TABLE Site (
     SiteID VARCHAR(36) PRIMARY KEY,
@@ -196,7 +196,7 @@ CREATE TABLE AuditLog (
 GO
 
 
--- CHÈN DỮ LIỆU MẪU
+-- CHÈN DỮ LIỆU MẪU (DML)
 INSERT INTO Site (SiteID, SiteName, Location, Description) VALUES
 ('S001', 'DC Ho Chi Minh Q1', '123 Nguyen Hue, Q1, TP.HCM', 'Trung tâm dữ liệu chính miền Nam'),
 ('S002', 'DC Ha Noi Cau Giay', '45 Duy Tan, Cau Giay, Ha Noi', 'Trung tâm dữ liệu chính miền Bắc'),
@@ -245,8 +245,8 @@ INSERT INTO AssetStatusChange (ChangeID, AssetID, PreviousStatus, NewStatus, Rea
 ('ASC004', 'AST004', 'In Use', 'In Storage', 'Thu hoi bao tri dinh ky', '2025-01-10 11:00:00');
 
 INSERT INTO [User] (UserID, Username, PasswordHash, FullName, Email, Status, CreatedAt) VALUES
-('USR001', 'giaan', 'hash_pwd_01', 'Trần Huỳnh Gia An', NULL, 'Active', '2025-01-01 00:00:00'),
-('USR002', 'kyanh', 'hash_pwd_02', 'Hoàng Kỳ Anh', NULL, 'Active', '2025-01-01 00:00:00'),
+('USR001', 'giaan', 'hash_pwd_01', 'Trần Huỳnh Gia An', 'anthg0226@ut.edu.vn', 'Active', '2025-01-01 00:00:00'),
+('USR002', 'kyanh', 'hash_pwd_02', 'Hoàng Kỳ Anh', 'anhhk791149@ut.edu.vn', 'Active', '2025-01-01 00:00:00'),
 ('USR003', 'giabao', 'hash_pwd_03', 'Lê Gia Bảo', NULL, 'Active', '2025-01-01 00:00:00'),
 ('USR004', 'tuyetphuong', 'hash_pwd_04', 'Nguyễn Hoàng Tuyết Phương', NULL, 'Active', '2025-01-01 00:00:00'),
 ('USR005', 'huyhieu', 'hash_pwd_05', 'Nguyễn Huy Hiệu', NULL, 'Active', '2025-01-01 00:00:00');
@@ -311,7 +311,7 @@ INSERT INTO AuditLog (LogID, IncidentID, UserID, Action, EntityType, EntityID, T
 ('LOG_A4', 'INC003', 'USR002', 'INSERT', 'Incident', 'INC003', '2026-09-13 11:10:00', '192.168.1.110', 'Phat sinh su co RAM server DB');
 GO
 
--- TRUY VẤN KIỂM TRA (có thể thay thế nội dung dưới select để query thử)
+-- TRUY VẤN KIỂM TRA (Đã bỏ dấu chấm phẩy thừa ở đoạn JOIN)
 SELECT 
     [User].UserID, 
     [User].FullName, 
