@@ -1,23 +1,4 @@
 % KY ANH
-\documentclass[12pt,a4paper]{report}
-\usepackage[utf8]{inputenc}
-\usepackage[T5]{fontenc}
-\usepackage[vietnamese]{babel}
-\usepackage{amsmath,amssymb}
-\usepackage{graphicx}
-\usepackage{geometry}
-\geometry{left=3cm,right=2cm,top=2.5cm,bottom=2.5cm}
-\usepackage{enumitem}
-\usepackage{xcolor}
-\usepackage{tcolorbox}
-\usepackage{listings}
-
-\begin{document}
-
-% Thiết lập bộ đếm để mục chính là 4.2
-\setcounter{chapter}{4}
-\setcounter{section}{1} 
-
 \section{Chỉ mục và tối ưu truy vấn}
 
 \subsection{Khái niệm và Cấu trúc Chỉ mục}
@@ -77,5 +58,3 @@ ON NHANVIEN(Ma_phong);
 \begin{itemize}[leftmargin=2em, resume]
     \item \textbf{Truy vấn 3 (Thống kê theo \texttt{Gioi\_tinh}):} Cột \texttt{Gioi\_tinh} chỉ có $2$ giá trị phân biệt (Nam/Nữ) $\rightarrow$ Độ chọn lọc cực kỳ thấp, mỗi giá trị trả về một nửa số dòng của bảng. Do đó, \textbf{không tạo chỉ mục B+} thông thường cho cột này vì chi phí bảo trì chỉ mục lớn hơn lợi ích mang lại.
 \end{itemize}
-
-\end{document}
