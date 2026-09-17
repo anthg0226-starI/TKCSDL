@@ -1,60 +1,73 @@
 % KY ANH
 \section{Chỉ mục và tối ưu truy vấn}
 
-\subsection{Khái niệm và Cấu trúc Chỉ mục}
-Chỉ mục (Index) là cấu trúc phụ trợ gồm các cặp giá trị và con trỏ \textit{(giá trị, con trỏ)}, giúp Hệ quản trị cơ sở dữ liệu (DBMS) định vị khối dữ liệu cần đọc một cách nhanh chóng mà không phải quét toàn bộ bảng (full table scan).
-\begin{itemize}[leftmargin=2em]
-    \item \textbf{Ưu điểm:} Tăng tốc độ truy vấn đọc dữ liệu đáng kể.
-    \item \textbf{Nhược điểm:} Tốn thêm không gian lưu trữ và làm chậm các thao tác ghi dữ liệu (\texttt{INSERT}, \texttt{UPDATE}, \texttt{DELETE}) do phải cập nhật đồng thời chỉ mục.
-\end{itemize}
+Trong hệ thống Quản lý Trung tâm Dữ liệu, các bảng ghi nhận dữ liệu giám sát thời gian thực (\texttt{TelemetryMetric}), cảnh báo (\texttt{Alert}) và nhật ký kiểm toán (\texttt{AuditLog}) có tốc độ tăng trưởng dữ liệu rất lớn. Do đó, việc xây dựng hệ thống chỉ mục (Index) và tối ưu hóa truy vấn là bắt buộc nhằm nâng cao hiệu năng hệ thống.
 
-\subsection{Phân loại Chỉ mục trong SQL Server}
-\begin{itemize}[leftmargin=2em]
-    \item \textbf{Clustered Index (Chỉ mục cụm):} Dữ liệu của bảng được sắp xếp vật lý theo khóa chỉ mục. Mỗi bảng chỉ có duy nhất một clustered index.
-    \item \textbf{Nonclustered Index (Chỉ mục không cụm):} Cấu trúc chỉ mục riêng biệt chứa con trỏ trỏ về dòng dữ liệu thực tế. Một bảng có thể tạo nhiều nonclustered index.
-    \item \textbf{Cây B+ (B+ Tree):} Cấu trúc cân bằng phổ biến cho chỉ mục, trong đó các nút lá chứa khóa và con trỏ, được liên kết chuỗi với nhau hỗ trợ cực tốt cho các truy vấn theo khoảng (\textit{range query}).
-\end{itemize}
+\subsection{Xây dựng chỉ mục cho phân hệ phần cứng và thiết bị}
+Để tăng tốc độ tìm kiếm các thiết bị máy chủ theo địa chỉ mạng và trạng thái hoạt động, các chỉ mục non-clustered được khởi tạo trên bảng \texttt{Server}:
 
-\subsection{Nguyên tắc chọn chỉ mục (Algorithm 4.1)}
-Quá trình thiết kế vật lý cho việc chọn chỉ mục tuân thủ các nguyên tắc cốt lõi sau:
-\begin{enumerate}
-    \item Luôn xem xét khóa chính và khóa ngoại trước tiên.
-    \item Ưu tiên các cột xuất hiện thường xuyên trong mệnh đề \texttt{WHERE}, \texttt{JOIN}, \texttt{ORDER BY}, \texttt{GROUP BY}.
-    \item Kiểm tra độ chọn lọc (\textit{Selectivity}): $\text{selectivity}(A) = \frac{\text{NDV}(A)}{|R|}$. Cột có độ chọn lọc càng cao thì chỉ mục B+ càng hiệu quả.
-    \item Cân nhắc chi phí ghi dữ liệu: Tránh lạm dụng quá nhiều chỉ mục trên bảng có tần suất cập nhật cao.
-\end{enumerate}
+\begin{verbatim}
+CREATE NONCLUSTERED INDEX IX_Server_IPAddress ON Server(IPAddress);
+CREATE NONCLUSTERED INDEX IX_Server_Status ON Server(Status);
+\end{verbatim}
 
-\subsection{Tối ưu hóa Truy vấn và Ước lượng Chi phí}
-Bộ tối ưu hóa truy vấn của DBMS dựa trên thống kê để chọn kế hoạch thực thi tối ưu:
-\begin{itemize}[leftmargin=2em]
-    \item \textbf{Đẩy phép chọn xuống dưới (\textit{Push-down Selection}):} Đưa các điều kiện lọc $\sigma$ tiến sát các bảng cơ sở càng sớm càng tốt để giảm kích thước bảng trung gian.
-    \item \textbf{Các thuật toán kết nối:} Gồm \textit{Nested-Loop Join}, \textit{Sort-Merge Join}, và \textit{Hash Join} ($O(b_R + b_S)$).
-\end{itemize}
+\subsection{Xây dựng chỉ mục cho dữ liệu giám sát chuỗi thời gian (Telemetry)}
+Dữ liệu đo đạc hiệu năng hệ thống phát sinh liên tục theo thời gian thực. Chỉ mục tổng hợp trên \texttt{ServerID} và \texttt{RecordedAt} giúp tối ưu hóa các truy vấn quét chuỗi thời gian:
 
-\subsection{Bài tập vận dụng: Lựa chọn chỉ mục theo Workload}
+\begin{verbatim}
+CREATE NONCLUSTERED INDEX IX_Telemetry_ServerTime 
+ON TelemetryMetric(ServerID, RecordedAt DESC);
+\end{verbatim}
 
-\noindent\textbf{Đề bài:} Cho lược đồ quan hệ quản lý nhân sự với bảng \texttt{NHANVIEN} (gồm các cột \texttt{MSNV}, \texttt{Ho\_ten}, \texttt{Luong}, \texttt{Ma\_phong}, \texttt{Gioi\_tinh}). Dựa vào đặc tả tải công việc (\textit{workload}) hàng ngày sau đây, hãy đưa ra quyết định thiết kế chỉ mục vật lý phù hợp nhất:
-\begin{enumerate}
-    \item Tra cứu thông tin nhân viên theo \texttt{MSNV}: tần suất $5.000$ lần/ngày.
-    \item Liệt kê danh sách nhân viên theo phòng ban (\texttt{Ma\_phong}): tần suất $800$ lần/ngày.
-    \item Thống kê dữ liệu nhân sự theo giới tính (\texttt{Gioi\_tinh}): tần suất $2$ lần/ngày.
-\end{enumerate}
+\subsection{Xây dựng chỉ mục cho phân hệ cảnh báo và sự cố}
+Nhằm giúp quản trị viên nhanh chóng lọc ra các cảnh báo nguy hiểm chưa được xử lý, hệ thống áp dụng các chỉ mục trên bảng \texttt{Alert}, \texttt{Incident} và \texttt{MaintenanceTicket}:
 
-\vspace{0.5em}
-\noindent\textbf{Lời giải và Phân tích thiết kế vật lý:}
-\begin{itemize}[leftmargin=2em]
-    \item \textbf{Truy vấn 1 (Tra cứu theo \texttt{MSNV}):} Do \texttt{MSNV} là khóa chính và có tần suất truy vấn cực cao ($5.000$ lần/ngày), hệ thống sử dụng ngay \textbf{chỉ mục khóa chính / chỉ mục cụm} đã có sẵn trên bảng.
-    
-    \item \textbf{Truy vấn 2 (Liệt kê theo \texttt{Ma\_phong}):} Cột \texttt{Ma\_phong} có tần suất lọc lớn ($800$ lần/ngày) và độ chọn lọc trung bình, cần tiến hành tạo \textbf{chỉ mục phụ (Nonclustered Index)} trên cột này:
-\end{itemize}
+\begin{verbatim}
+CREATE NONCLUSTERED INDEX IX_Alert_State_Severity ON Alert(State, Severity);
+CREATE NONCLUSTERED INDEX IX_Alert_ServerTrigger ON Alert(ServerID, TriggeredAt DESC);
 
-\begin{tcolorbox}[colback=gray!5, colframe=gray!60, title={\textbf{Câu lệnh SQL tạo chỉ mục phụ}}, fonttitle=\bfseries\small, boxrule=0.5pt, arc=2pt]
-\begin{lstlisting}[language=SQL, basicstyle=\ttfamily\small, breaklines=true, showstringspaces=false, keywordstyle=\bfseries\color{blue!70!black}, stringstyle=\color{red!70!black}, commentstyle=\itshape\color{green!50!black}]
-CREATE NONCLUSTERED INDEX IX_NV_PHONG 
-ON NHANVIEN(Ma_phong);
-\end{lstlisting}
-\end{tcolorbox}
+CREATE NONCLUSTERED INDEX IX_Incident_Status ON Incident(Status);
+CREATE NONCLUSTERED INDEX IX_Maintenance_Status ON MaintenanceTicket(Status);
+\end{verbatim}
 
-\begin{itemize}[leftmargin=2em, resume]
-    \item \textbf{Truy vấn 3 (Thống kê theo \texttt{Gioi\_tinh}):} Cột \texttt{Gioi\_tinh} chỉ có $2$ giá trị phân biệt (Nam/Nữ) $\rightarrow$ Độ chọn lọc cực kỳ thấp, mỗi giá trị trả về một nửa số dòng của bảng. Do đó, \textbf{không tạo chỉ mục B+} thông thường cho cột này vì chi phí bảo trì chỉ mục lớn hơn lợi ích mang lại.
-\end{itemize}
+\subsection{Xây dựng chỉ mục cho phân hệ kiểm toán (Audit Log)}
+Phục vụ cho việc kiểm tra vết hoạt động của người dùng và hệ thống theo mốc thời gian:
+
+\begin{verbatim}
+CREATE NONCLUSTERED INDEX IX_AuditLog_Timestamp ON AuditLog(Timestamp DESC);
+CREATE NONCLUSTERED INDEX IX_AuditLog_User ON AuditLog(UserID);
+\end{verbatim}
+
+\subsection{Ví dụ minh họa tối ưu truy vấn thực tế}
+Dưới đây là các mẫu truy vấn quan trọng đã được tối ưu hóa nhờ các chỉ mục ở trên:
+
+\subsubsection{Truy vấn dữ liệu giám sát gần nhất của một Server}
+\begin{verbatim}
+SELECT TOP 100 
+    MetricID,
+    CPUUsage,
+    RAMUsage,
+    NetworkTraffic,
+    RecordedAt
+FROM TelemetryMetric
+WHERE ServerID = 'SRV-001-UUID'
+ORDER BY RecordedAt DESC;
+\end{verbatim}
+
+\subsubsection{Truy vấn danh sách cảnh báo khẩn cấp chưa xử lý}
+\begin{verbatim}
+SELECT 
+    a.AlertID,
+    s.ServerName,
+    s.IPAddress,
+    a.Severity,
+    a.Message,
+    a.TriggeredAt
+FROM Alert a
+JOIN Server s ON a.ServerID = s.ServerID
+WHERE a.State = 'Active' 
+  AND a.Severity IN ('Critical', 'High')
+ORDER BY a.TriggeredAt DESC;
+\end{verbatim}
+
+\end{document}
