@@ -1,0 +1,186 @@
+%% =============================================
+%% 4.3 KHUNG NHIN VA THU TUC LUU TRU
+%% =============================================
+\section{Khung nhìn (Views) và Thủ tục lưu trữ (Stored Procedures)}
+
+Nhằm tối ưu hóa hiệu năng truy vấn các cấu trúc phân cấp phức tạp, giảm thiểu độ phức tạp khi lập trình ở tầng ứng dụng (NestJS Backend) và đóng gói các logic nghiệp vụ giao dịch mang tính toàn vẹn cao, hệ thống AR-IMMS xây dựng hệ thống các khung nhìn (\textit{Views}) và thủ tục lưu trữ (\textit{Stored Procedures}) chuẩn hóa trên cơ sở dữ liệu quan hệ.
+
+\subsection{Các khung nhìn (Views) phục vụ báo cáo và truy xuất nhanh}
+
+Các khung nhìn đóng vai trò là các bảng ảo lưu trữ câu lệnh truy vấn đã được biên dịch sẵn, giúp ẩn đi các phép nối bảng (\textit{JOIN}) phức tạp giữa các tầng hạ tầng đa cấp, qua đó hỗ trợ giao diện Web Admin và ứng dụng di động AR truy xuất thông tin nhanh chóng, đồng nhất.
+
+\vspace{0.5em}
+\noindent\textbf{Khung nhìn \texttt{vw\_ServerAssetDetails}} -- Tổng hợp chi tiết tài sản hạ tầng phần cứng và không gian.
+
+\begin{tcolorbox}[colback=gray!5, colframe=gray!60, title={\textbf{CREATE VIEW vw\_ServerAssetDetails}}, fonttitle=\bfseries\small, boxrule=0.5pt, arc=2pt]
+\begin{lstlisting}[language=SQL, basicstyle=\ttfamily\small, breaklines=true, showstringspaces=false, keywordstyle=\bfseries\color{blue!70!black}, stringstyle=\color{red!70!black}, commentstyle=\itshape\color{green!50!black}]
+CREATE VIEW vw_ServerAssetDetails AS
+SELECT 
+    s.ServerID,
+    s.ServerName,
+    s.QRCodeStamp,
+    s.Status AS ServerStatus,
+    r.RackName,
+    rm.RoomName,
+    st.SiteName,
+    s.IPAddress,
+    s.UPosition,
+    s.LastSeen
+FROM Server s
+JOIN Rack r ON s.RackID = r.RackID
+JOIN Room rm ON r.RoomID = rm.RoomID
+JOIN Site st ON rm.SiteID = st.SiteID;
+\end{lstlisting}
+\end{tcolorbox}
+
+\begin{itemize}[leftmargin=2em]
+    \item Liên kết đa cấp từ bảng \texttt{Server} $\rightarrow$ \texttt{Rack} $\rightarrow$ \texttt{Room} $\rightarrow$ \texttt{Site}.
+    \item Cung cấp đầy đủ thông tin định danh vật lý, vị trí không gian và mã QR phục vụ quét thiết bị bằng ứng dụng AR.
+\end{itemize}
+
+\vspace{0.5em}
+\noindent\textbf{Khung nhìn \texttt{vw\_ActiveAlerts}} -- Lọc danh sách cảnh báo đang hoạt động trong hệ thống.
+
+\begin{tcolorbox}[colback=gray!5, colframe=gray!60, title={\textbf{CREATE VIEW vw\_ActiveAlerts}}, fonttitle=\bfseries\small, boxrule=0.5pt, arc=2pt]
+\begin{lstlisting}[language=SQL, basicstyle=\ttfamily\small, breaklines=true, showstringspaces=false, keywordstyle=\bfseries\color{blue!70!black}, stringstyle=\color{red!70!black}, commentstyle=\itshape\color{green!50!black}]
+CREATE VIEW vw_ActiveAlerts AS
+SELECT 
+    a.AlertID,
+    a.Alerttype,
+    a.Severity,
+    a.State AS AlertState,
+    a.Message,
+    a.TriggeredAt,
+    s.ServerName,
+    s.IPAddress,
+    rk.RackName
+FROM Alert a
+JOIN Server s ON a.ServerID = s.ServerID
+JOIN Rack rk ON s.RackID = rk.RackID
+WHERE a.State = 'Active';
+\end{lstlisting}
+\end{tcolorbox}
+
+\begin{itemize}[leftmargin=2em]
+    \item Tự động trích xuất các sự cố có trạng thái \texttt{Active}, kết hợp thông tin máy chủ và tủ rack tương ứng.
+    \item Phục vụ trực tiếp cho màn hình trực quan hóa cảnh báo thời gian thực trên Web Admin.
+\end{itemize}
+
+\vspace{0.5em}
+\noindent\textbf{Khung nhìn \texttt{vw\_LatestServerTelemetry}} -- Truy xuất thông số đo lường hiệu năng mới nhất.
+
+\begin{tcolorbox}[colback=gray!5, colframe=gray!60, title={\textbf{CREATE VIEW vw\_LatestServerTelemetry}}, fonttitle=\bfseries\small, boxrule=0.5pt, arc=2pt]
+\begin{lstlisting}[language=SQL, basicstyle=\ttfamily\small, breaklines=true, showstringspaces=false, keywordstyle=\bfseries\color{blue!70!black}, stringstyle=\color{red!70!black}, commentstyle=\itshape\color{green!50!black}]
+CREATE VIEW vw_LatestServerTelemetry AS
+SELECT 
+    tm.MetricID,
+    tm.ServerID,
+    s.ServerName,
+    tm.CPUUsage,
+    tm.RAMUsage,
+    tm.NetworkTraffic,
+    tm.ContainerStates
+FROM TelemetryMetric tm
+JOIN Server s ON tm.ServerID = s.ServerID;
+\end{lstlisting}
+\end{tcolorbox}
+
+\begin{itemize}[leftmargin=2em]
+    \item Lọc và cung cấp trạng thái thông số tài nguyên (CPU, RAM, Network) mới nhất của từng máy chủ.
+    \item Giúp bảng điều khiển hiển thị tức thời mà không cần thực hiện các truy vấn gom nhóm phức tạp ở tầng ứng dụng.
+\end{itemize}
+
+\subsection{Các thủ tục lưu trữ (Stored Procedures) xử lý nghiệp vụ}
+
+Các thủ tục lưu trữ đảm bảo tính nguyên tử (\textit{Atomicity}) và tính nhất quán trong các chuỗi giao dịch phức tạp của hệ thống.
+
+\vspace{0.5em}
+\noindent\textbf{Thủ tục \texttt{sp\_CreateMaintenanceTicket}} -- Tự động khởi tạo phiếu bảo trì từ cảnh báo hệ thống.
+
+\begin{tcolorbox}[colback=gray!5, colframe=gray!60, title={\textbf{CREATE PROCEDURE sp\_CreateMaintenanceTicket}}, fonttitle=\bfseries\small, boxrule=0.5pt, arc=2pt]
+\begin{lstlisting}[language=SQL, basicstyle=\ttfamily\small, breaklines=true, showstringspaces=false, keywordstyle=\bfseries\color{blue!70!black}, stringstyle=\color{red!70!black}, commentstyle=\itshape\color{green!50!black}]
+CREATE PROCEDURE sp_CreateMaintenanceTicket
+    @TicketID VARCHAR(36),
+    @IncidentID VARCHAR(36),
+    @ServerID VARCHAR(36),
+    @AssignedTo VARCHAR(36),
+    @CreatedBy VARCHAR(36),
+    @Priority VARCHAR(20),
+    @Description TEXT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    BEGIN TRANSACTION;
+    BEGIN TRY
+        -- 1. Tao phieu bao tri moi cho ky thuat vien
+        INSERT INTO MaintainTicket (TicketID, IncidentID, ServerID, AssignedTo, CreatedBy, Priority, Status, ScheduledAt)
+        VALUES (@TicketID, @IncidentID, @ServerID, @AssignedTo, @CreatedBy, @Priority, 'Open', GETDATE());
+
+        -- 2. Ghi nhan nhat ky kiem toan hanh dong tao phieu
+        INSERT INTO AuditLog (LogID, IncidentID, UserID, Action, EntityType, EntityID, Timestamp, Details)
+        VALUES (NEWID(), @IncidentID, @CreatedBy, 'INSERT', 'MaintainTicket', @TicketID, GETDATE(), 'Tao phieu bao tri tu dong tu canh bao he thong');
+
+        COMMIT TRANSACTION;
+    END TRY
+    BEGIN CATCH
+        IF @@TRANCOUNT > 0
+            ROLLBACK TRANSACTION;
+        THROW;
+    END CATCH
+END;
+\end{lstlisting}
+\end{tcolorbox}
+
+\begin{itemize}[leftmargin=2em]
+    \item Đóng gói giao dịch gồm thao tác tạo phiếu (\texttt{MaintainTicket}) và ghi log kiểm toán (\texttt{AuditLog}).
+    \item Sử dụng cơ chế \texttt{TRY...CATCH} và \texttt{ROLLBACK TRANSACTION} để đảm bảo không xảy ra lệch dữ liệu khi có lỗi phát sinh.
+\end{itemize}
+
+\vspace{0.5em}
+\noindent\textbf{Thủ tục \texttt{sp\_CompleteMaintenanceSession}} -- Ghi nhận kết quả xử lý sự cố hoàn tất qua phiên AR.
+
+\begin{tcolorbox}[colback=gray!5, colframe=gray!60, title={\textbf{CREATE PROCEDURE sp\_CompleteMaintenanceSession}}, fonttitle=\bfseries\small, boxrule=0.5pt, arc=2pt]
+\begin{lstlisting}[language=SQL, basicstyle=\ttfamily\small, breaklines=true, showstringspaces=false, keywordstyle=\bfseries\color{blue!70!black}, stringstyle=\color{red!70!black}, commentstyle=\itshape\color{green!50!black}]
+CREATE PROCEDURE sp_CompleteMaintenanceSession
+    @TicketID VARCHAR(36),
+    @TechnicianID VARCHAR(36),
+    @AssetID VARCHAR(36),
+    @ARSessionUsed VARCHAR(50),
+    @InvestigationNotes TEXT,
+    @RootCause TEXT,
+    @CorrectiveAction TEXT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    BEGIN TRANSACTION;
+    BEGIN TRY
+        -- 1. Cap nhat trang thai phieu bao tri sang cho phe duyet
+        UPDATE MaintainTicket
+        SET Status = 'Pending_Approval',
+            CompletedAt = GETDATE()
+        WHERE TicketID = @TicketID AND AssignedTo = @TechnicianID;
+
+        -- 2. Ghi nhan nhat ky xu ly hien truong thuc te
+        INSERT INTO MaintenanceLog (LogID, TicketID, TechnicianID, AssetID, ARSessionUsed, InvestigationNotes, RootCause, CorrectiveAction, LoggedAt)
+        VALUES (NEWID(), @TicketID, @TechnicianID, @AssetID, @ARSessionUsed, @InvestigationNotes, @RootCause, @CorrectiveAction, GETDATE());
+
+        -- 3. Ghi log kiem toan thao tac hoan tat phieu
+        INSERT INTO AuditLog (LogID, UserID, Action, EntityType, EntityID, Timestamp, Details)
+        VALUES (NEWID(), @TechnicianID, 'UPDATE', 'MaintainTicket', @TicketID, GETDATE(), 'Technician completed maintenance via AR session.');
+
+        COMMIT TRANSACTION;
+    END TRY
+    BEGIN CATCH
+        IF @@TRANCOUNT > 0
+            ROLLBACK TRANSACTION;
+        THROW;
+    END CATCH;
+END;
+GO
+\end{lstlisting}
+\end{tcolorbox}
+
+\begin{itemize}[leftmargin=2em]
+    \item Quản lý toàn bộ quy trình khép kín khi kỹ thuật viên kết thúc công tác bảo trì ngoài thực địa qua ứng dụng AR.
+    \item Đồng bộ cập nhật trạng thái phiếu, ghi nhận nhật ký hiện trường và tạo dấu vết kiểm toán an toàn trong một giao dịch duy nhất.
+\end{itemize}
