@@ -20,14 +20,14 @@ ON TelemetryMetric(ServerID, RecordedAt DESC);
 \end{verbatim}
 
 \subsection{Xây dựng chỉ mục cho phân hệ cảnh báo và sự cố}
-Nhằm giúp quản trị viên nhanh chóng lọc ra các cảnh báo nguy hiểm chưa được xử lý, hệ thống áp dụng các chỉ mục trên bảng \texttt{Alert}, \texttt{Incident} và \texttt{MaintenanceTicket}:
+Nhằm giúp quản trị viên nhanh chóng lọc ra các cảnh báo nguy hiểm chưa được xử lý, hệ thống áp dụng các chỉ mục trên bảng \texttt{Alert}, \texttt{Incident} và \texttt{MaintainTicket}:
 
 \begin{verbatim}
 CREATE NONCLUSTERED INDEX IX_Alert_State_Severity ON Alert(State, Severity);
 CREATE NONCLUSTERED INDEX IX_Alert_ServerTrigger ON Alert(ServerID, TriggeredAt DESC);
 
 CREATE NONCLUSTERED INDEX IX_Incident_Status ON Incident(Status);
-CREATE NONCLUSTERED INDEX IX_Maintenance_Status ON MaintenanceTicket(Status);
+CREATE NONCLUSTERED INDEX IX_MaintainTicket_Status ON MaintainTicket(Status);
 \end{verbatim}
 
 \subsection{Xây dựng chỉ mục cho phân hệ kiểm toán (Audit Log)}
@@ -65,7 +65,7 @@ SELECT
     a.TriggeredAt
 FROM Alert a
 JOIN Server s ON a.ServerID = s.ServerID
-WHERE a.State = 'Active' 
-  AND a.Severity IN ('Critical', 'High')
+WHERE a.State = 'Open' 
+  AND a.Severity = 'Critical'
 ORDER BY a.TriggeredAt DESC;
 \end{verbatim}
