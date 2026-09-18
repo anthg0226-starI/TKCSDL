@@ -29,10 +29,10 @@ Phân hệ này gồm 5 bảng mô tả cấu trúc phân cấp vật lý của 
 \begin{tcolorbox}[colback=gray!5, colframe=gray!60, title={\textbf{CREATE TABLE Site}}, fonttitle=\bfseries\small, boxrule=0.5pt, arc=2pt]
 \begin{lstlisting}[language=SQL, basicstyle=\ttfamily\small, breaklines=true, showstringspaces=false, keywordstyle=\bfseries\color{blue!70!black}, stringstyle=\color{red!70!black}, commentstyle=\itshape\color{green!50!black}]
 CREATE TABLE Site (
-    SiteID       VARCHAR(36) PRIMARY KEY,
-    SiteName     VARCHAR(50) NOT NULL,
-    Location     VARCHAR(255),
-    Description  TEXT
+    SiteID        VARCHAR(36) PRIMARY KEY,
+    SiteName      VARCHAR(50) NOT NULL,
+    Location      VARCHAR(255),
+    Description   TEXT
 );
 \end{lstlisting}
 \end{tcolorbox}
@@ -71,11 +71,11 @@ CREATE TABLE Room (
 \begin{tcolorbox}[colback=gray!5, colframe=gray!60, title={\textbf{CREATE TABLE Rack}}, fonttitle=\bfseries\small, boxrule=0.5pt, arc=2pt]
 \begin{lstlisting}[language=SQL, basicstyle=\ttfamily\small, breaklines=true, showstringspaces=false, keywordstyle=\bfseries\color{blue!70!black}, stringstyle=\color{red!70!black}, commentstyle=\itshape\color{green!50!black}]
 CREATE TABLE Rack (
-    RackID         VARCHAR(36) PRIMARY KEY,
-    RoomID         VARCHAR(36) FOREIGN KEY REFERENCES Room(RoomID),
-    RackName       VARCHAR(30) NOT NULL,
-    MaxUnit        INT,
-    LocationInRoom VARCHAR(50)
+    RackID           VARCHAR(36) PRIMARY KEY,
+    RoomID           VARCHAR(36) FOREIGN KEY REFERENCES Room(RoomID),
+    RackName         VARCHAR(30) NOT NULL,
+    MaxUnit          INT,
+    LocationInRoom   VARCHAR(50)
 );
 \end{lstlisting}
 \end{tcolorbox}
@@ -160,7 +160,8 @@ CREATE TABLE TelemetryMetric (
     CPUUsage        FLOAT,
     RAMUsage        FLOAT,
     NetworkTraffic  FLOAT,
-    ContainerStates VARCHAR(50)
+    ContainerStates VARCHAR(50),
+    RecordedAt      DATETIME NOT NULL
 );
 \end{lstlisting}
 \end{tcolorbox}
@@ -205,7 +206,7 @@ CREATE TABLE Alert (
     AlertID        VARCHAR(36) PRIMARY KEY,
     ServerID       VARCHAR(36) FOREIGN KEY REFERENCES Server(ServerID),
     ThresholdID    VARCHAR(36) FOREIGN KEY REFERENCES
-                       AlertThreshold(ThresholdID),
+                        AlertThreshold(ThresholdID),
     AcknowledgedBy VARCHAR(36) FOREIGN KEY REFERENCES [User](UserID),
     Alerttype      VARCHAR(30),
     Severity       VARCHAR(15),
@@ -300,11 +301,11 @@ CREATE TABLE MaintainTicket (
 CREATE TABLE MaintenanceLog (
     LogID              VARCHAR(36) PRIMARY KEY,
     TicketID           VARCHAR(36) FOREIGN KEY REFERENCES
-                           MaintainTicket(TicketID),
+                            MaintainTicket(TicketID),
     TechnicianID       VARCHAR(36) FOREIGN KEY REFERENCES
-                           [User](UserID),
+                            [User](UserID),
     AssetID            VARCHAR(36) FOREIGN KEY REFERENCES
-                           Asset(AssetID),
+                            Asset(AssetID),
     ARSessionUsed      VARCHAR(50),
     InvestigationNotes TEXT,
     RootCause          TEXT,
@@ -403,7 +404,7 @@ CREATE TABLE Asset (
 CREATE TABLE Warranty (
     WarrantyID     VARCHAR(36) PRIMARY KEY,
     AssetID        VARCHAR(36) FOREIGN KEY REFERENCES
-                       Asset(AssetID),
+                        Asset(AssetID),
     WarrantyType   VARCHAR(20),
     WarrantyName   VARCHAR(50),
     ContractNumber VARCHAR(30),
@@ -434,7 +435,7 @@ CREATE TABLE Warranty (
 CREATE TABLE AssetStatusChange (
     ChangeID       VARCHAR(36) PRIMARY KEY,
     AssetID        VARCHAR(36) FOREIGN KEY REFERENCES
-                       Asset(AssetID),
+                        Asset(AssetID),
     PreviousStatus VARCHAR(15),
     NewStatus      VARCHAR(15),
     Reason         TEXT,
@@ -536,9 +537,9 @@ CREATE TABLE UserRole (
 CREATE TABLE AuditLog (
     LogID      VARCHAR(36) PRIMARY KEY,
     IncidentID VARCHAR(36) FOREIGN KEY REFERENCES
-                   Incident(IncidentID),
+                    Incident(IncidentID),
     UserID     VARCHAR(36) FOREIGN KEY REFERENCES
-                   [User](UserID),
+                    [User](UserID),
     Action     VARCHAR(30),
     EntityType VARCHAR(30),
     EntityID   VARCHAR(36),
@@ -585,7 +586,7 @@ Bảng tổng hợp dưới đây liệt kê toàn bộ 19 bảng đã hiện th
 3 & \texttt{Rack} & 5 & 1 & Hạ tầng \\ \hline
 4 & \texttt{Server} & 8 & 1 & Hạ tầng \\ \hline
 5 & \texttt{Workload} & 6 & 1 & Hạ tầng \\ \hline
-6 & \texttt{TelemetryMetric} & 6 & 1 & Giám sát \\ \hline
+6 & \texttt{TelemetryMetric} & 7 & 1 & Giám sát \\ \hline
 7 & \texttt{AlertThreshold} & 5 & 0 & Giám sát \\ \hline
 8 & \texttt{Alert} & 10 & 3 & Giám sát \\ \hline
 9 & \texttt{Incident} & 8 & 1 & Giám sát \\ \hline
