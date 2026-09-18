@@ -1,0 +1,24 @@
+\section*{1. Kết quả đạt được của Đề tài}
+Qua quá trình nghiên cứu, phân tích và thực hiện đề tài \textbf{“Thiết kế Cơ sở Dữ liệu cho Hệ thống Giám sát và Bảo trì Cơ sở Hạ tầng Tích hợp Thực tế Tăng cường (AR-IMMS)”}, nhóm chúng em đã hoàn thành các mục tiêu đề ra:
+\begin{itemize}
+    \item \textbf{Phân tích và mô hình hóa thành công nghiệp vụ:} Xây dựng hoàn chỉnh cây phân cấp không gian hạ tầng (\textit{Site $\rightarrow$ Room $\rightarrow$ Rack $\rightarrow$ Server $\rightarrow$ Workload}), kết hợp gắn kết mã định danh không gian (\textit{QR/ArUco Code}) phục vụ cho ứng dụng Thực tế Tăng cường (AR).
+    \item \textbf{Thiết kế CSDL chuẩn hóa:} Hoàn thiện từ mô hình quan niệm (ERD), mô hình logic đến thiết kế vật lý đạt chuẩn 3NF, giúp loại bỏ triệt để hiện tượng dư thừa dữ liệu và đảm bảo tính toàn vẹn thông tin.
+    \item \textbf{Hiện thực hóa các phân hệ nghiệp vụ phức tạp:} Xây dựng cấu trúc lưu trữ cho chuỗi thời gian telemetry (\textit{Telemetry Logs}), vòng đời trạng thái cảnh báo và phiếu bảo trì (\textit{Alerts \& Maintenance Tickets}), cùng với hệ thống nhật ký kiểm toán bất biến (\textit{Audit Trail}) phục vụ phân quyền RBAC.
+\end{itemize}
+
+\section*{2. Hạn chế và Hướng phát triển}
+Mặc dù hệ thống đã đáp ứng được các yêu cầu kỹ thuật và nghiệp vụ đặt ra trong khuôn khổ bài tập lớn, đề tài vẫn tồn tại một số điểm hạn chế nhất định do giới hạn về thời gian và môi trường thử nghiệm:
+\begin{itemize}
+    \item \textbf{Môi trường kiểm thử:} Hệ thống mới chỉ dừng lại ở quy mô mô hình thử nghiệm (\textit{Mini Data Center testbed}) với số lượng nút mạng giả lập, chưa được kiểm chứng thực tế trên quy mô hạ tầng lớn hàng nghìn thiết bị.
+    \item \textbf{Tính năng tự động hóa:} Các cơ chế tự động phát hiện sự cố và gán nhãn thông minh dựa trên AI/Machine Learning chưa được tích hợp sâu vào tầng CSDL.
+\end{itemize}
+
+\textbf{Hướng phát triển trong tương lai:} Nhóm sẽ tiếp tục nghiên cứu tích hợp cơ chế phân vùng dữ liệu (\textit{Partitioning}) cho bảng lưu trữ thông số theo thời gian thực, mở rộng khả năng đồng bộ dữ liệu ngoại tuyến cho ứng dụng di động AR, và tối ưu hóa các Stored Procedure xử lý sự cố tự động nhằm nâng cao hiệu năng tổng thể của hệ thống.
+
+\vspace{0.4em}
+Thông qua bài tập lớn này, nhóm chúng em đã tích lũy thêm nhiều kiến thức thực tế quý báu về quy trình phân tích hệ thống, kỹ thuật thiết kế và chuẩn hóa cơ sở dữ liệu cho các ứng dụng công nghệ hiện đại.
+
+\vspace{0.4em}
+\begin{raggedleft}
+\textit{Chúng em xin chân thành cảm ơn Thầy đã tận tình hướng dẫn!}\\
+\end{raggedleft}
