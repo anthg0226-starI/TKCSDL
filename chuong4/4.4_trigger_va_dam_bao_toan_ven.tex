@@ -1,0 +1,89 @@
+%% =============================================
+%% 4.4 TRIGGER VA DAM BOA TOAN VEN DU LIEU
+%% =============================================
+\section{Trigger và Đảm bảo toàn vẹn dữ liệu}
+
+Phần này hiện thực hóa các ràng buộc logic nghiệp vụ phức tạp mà khóa ngoại hay ràng buộc kiểm tra (\texttt{CHECK}) thông thường không thể xử lý được, sử dụng cơ chế \textbf{Trigger} trên hệ quản trị Microsoft SQL Server.
+
+\vspace{0.5em}
+\noindent\textbf{Trigger \texttt{trg\_AuditLog\_Immutable}} -- Đảm bảo tính bất biến của Nhật ký kiểm toán (Audit Trail).
+
+\begin{tcolorbox}[colback=gray!5, colframe=gray!60, title={\textbf{CREATE TRIGGER trg\_AuditLog\_Immutable}}, fonttitle=\bfseries\small, boxrule=0.5pt, arc=2pt]
+\begin{lstlisting}[language=SQL, basicstyle=\ttfamily\small, breaklines=true, showstringspaces=false, keywordstyle=\bfseries\color{blue!70!black}, stringstyle=\color{red!70!black}, commentstyle=\itshape\color{green!50!black}]
+CREATE TRIGGER trg_AuditLog_Immutable
+ON AuditLog
+INSTEAD OF UPDATE, DELETE
+AS
+BEGIN
+    RAISERROR('Security Policy: AuditLog is immutable and cannot be modified or deleted.', 16, 1);
+    ROLLBACK TRANSACTION;
+END;
+GO
+\end{lstlisting}
+\end{tcolorbox}
+
+\begin{itemize}[leftmargin=2em]
+    \item Sử dụng mệnh đề \texttt{INSTEAD OF UPDATE, DELETE} trên bảng \texttt{AuditLog}.
+    \item Ngăn chặn hoàn toàn mọi hành vi cố ý chỉnh sửa hoặc xóa vết nhật ký hệ thống nhằm đảm bảo tính pháp lý và an toàn bảo mật.
+\end{itemize}
+
+\vspace{0.5em}
+\noindent\textbf{Trigger \texttt{trg\_Server\_Status\_Sync}} -- Tự động đồng bộ trạng thái Workload khi Server gặp sự cố.
+
+\begin{tcolorbox}[colback=gray!5, colframe=gray!60, title={\textbf{CREATE TRIGGER trg\_Server\_Status\_Sync}}, fonttitle=\bfseries\small, boxrule=0.5pt, arc=2pt]
+\begin{lstlisting}[language=SQL, basicstyle=\ttfamily\small, breaklines=true, showstringspaces=false, keywordstyle=\bfseries\color{blue!70!black}, stringstyle=\color{red!70!black}, commentstyle=\itshape\color{green!50!black}]
+CREATE TRIGGER trg_Server_Status_Sync
+ON Server
+AFTER UPDATE
+AS
+BEGIN
+    IF UPDATE(Status)
+    BEGIN
+        UPDATE w
+        SET w.Status = 'Stopped'
+        FROM Workload w
+        JOIN inserted i ON w.ServerID = i.ServerID
+        WHERE i.Status IN ('Offline', 'Critical', 'Unavailable');
+    END
+END;
+GO
+\end{lstlisting}
+\end{tcolorbox}
+
+\begin{itemize}[leftmargin=2em]
+    \item Theo dõi sự thay đổi cột \texttt{Status} trên bảng \texttt{Server} bằng lệnh \texttt{AFTER UPDATE}.
+    \item Khi một máy chủ chuyển sang trạng thái bất thường (\texttt{Offline}, \texttt{Critical}, \texttt{Unavailable}), trigger tự động chuyển trạng thái các container/workload chạy trên máy chủ đó thành \texttt{Stopped}.
+\end{itemize}
+
+\vspace{0.5em}
+\noindent\textbf{Trigger \texttt{trg\_Check\_Ticket\_State\_Transition}} -- Kiểm soát luồng chuyển đổi trạng thái Phiếu bảo trì.
+
+\begin{tcolorbox}[colback=gray!5, colframe=gray!60, title={\textbf{CREATE TRIGGER trg\_Check\_Ticket\_State\_Transition}}, fonttitle=\bfseries\small, boxrule=0.5pt, arc=2pt]
+\begin{lstlisting}[language=SQL, basicstyle=\ttfamily\small, breaklines=true, showstringspaces=false, keywordstyle=\bfseries\color{blue!70!black}, stringstyle=\color{red!70!black}, commentstyle=\itshape\color{green!50!black}]
+CREATE TRIGGER trg_Check_Ticket_State_Transition
+ON MaintainTicket
+AFTER UPDATE
+AS
+BEGIN
+    IF UPDATE(Status)
+    BEGIN
+        IF EXISTS (
+            SELECT 1 FROM inserted i
+            JOIN deleted d ON i.TicketID = d.TicketID
+            WHERE (d.Status = 'Closed' AND i.Status <> 'Closed') 
+               OR (d.Status = 'Pending_Approval' AND i.Status = 'Assigned')
+        )
+        BEGIN
+            RAISERROR('Workflow Error: Invalid state transition for Maintenance Ticket.', 16, 1);
+            ROLLBACK TRANSACTION;
+        END
+    END
+END;
+GO
+\end{lstlisting}
+\end{tcolorbox}
+
+\begin{itemize}[leftmargin=2em]
+    \item So sánh trạng thái cũ (\texttt{deleted}) và trạng thái mới (\texttt{inserted}) trên bảng \texttt{MaintainTicket}.
+    \item Đảm bảo tuân thủ nghiêm ngặt quy trình nghiệp vụ: không cho phép thay đổi khi phiếu đã đóng (\texttt{Closed}), và ngăn chặn hành vi quay ngược trạng thái bất hợp lệ từ chờ duyệt về lại trạng thái đã gán.
+\end{itemize}
