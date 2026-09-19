@@ -248,7 +248,7 @@ INSERT INTO [User] (UserID, Username, PasswordHash, FullName, Email, Status, Cre
 ('USR001', 'giaan', 'hash_pwd_01', 'Trần Huỳnh Gia An', 'anthg0226@ut.edu.vn', 'Active', '2025-01-01 00:00:00'),
 ('USR002', 'kyanh', 'hash_pwd_02', 'Hoàng Kỳ Anh', 'anhhk791149@ut.edu.vn', 'Active', '2025-01-01 00:00:00'),
 ('USR003', 'giabao', 'hash_pwd_03', 'Lê Gia Bảo', 'baolg799255@ut.edu.vn', 'Active', '2025-01-01 00:00:00'),
-('USR004', 'tuyetphuong', 'hash_pwd_04', 'Nguyễn Hoàng Tuyết Phương', phuongnht2533@ut.edu.vn', 'Active', '2025-01-01 00:00:00'),
+('USR004', 'tuyetphuong', 'hash_pwd_04', 'Nguyễn Hoàng Tuyết Phương', 'phuongnht2533@ut.edu.vn', 'Active', '2025-01-01 00:00:00'),
 ('USR005', 'huyhieu', 'hash_pwd_05', 'Nguyễn Huy Hiệu', 'hieunh1857@ut.edu.vn', 'Active', '2025-01-01 00:00:00');
 
 INSERT INTO [Role] (RoleID, RoleName, Description) VALUES
