@@ -1,46 +1,238 @@
-CREATE DATABASE DataCenterManagement_DB;
+USE master;
+GO
+
+CREATE DATABASE DataCenterManagement_DB COLLATE Vietnamese_CI_AS;
 GO
 
 USE DataCenterManagement_DB;
 GO
 
-DELETE FROM MaintenanceLog;
-DELETE FROM MaintainTicket;
-DELETE FROM Alert;
-DELETE FROM TelemetryMetric;
-DELETE FROM Workload;
-DELETE FROM AssetStatusChange;
-DELETE FROM Warranty;
-DELETE FROM Asset;
-DELETE FROM AuditLog;
-DELETE FROM Server;
-DELETE FROM Rack;
-DELETE FROM Room;
-DELETE FROM Site;
-DELETE FROM AssetCategory;
-DELETE FROM AlertThreshold;
-DELETE FROM Incident;
+CREATE TABLE Site (
+    SiteID VARCHAR(20) PRIMARY KEY,
+    SiteName NVARCHAR(100) NOT NULL,
+    Location NVARCHAR(255),
+    Description NVARCHAR(500)
+);
+
+CREATE TABLE Room (
+    RoomID VARCHAR(20) PRIMARY KEY,
+    SiteID VARCHAR(20) NOT NULL,
+    RoomName NVARCHAR(100) NOT NULL,
+    FloorLevel VARCHAR(20),
+    FOREIGN KEY (SiteID) REFERENCES Site(SiteID)
+);
+
+CREATE TABLE Rack (
+    RackID VARCHAR(20) PRIMARY KEY,
+    RoomID VARCHAR(20) NOT NULL,
+    RackName NVARCHAR(100) NOT NULL,
+    MaxUnit INT,
+    LocationInRoom NVARCHAR(100),
+    FOREIGN KEY (RoomID) REFERENCES Room(RoomID)
+);
+
+CREATE TABLE Server (
+    ServerID VARCHAR(20) PRIMARY KEY,
+    RackID VARCHAR(20) NOT NULL,
+    ServerName NVARCHAR(100) NOT NULL,
+    IPAddress VARCHAR(50),
+    QRCodeStamp VARCHAR(100),
+    UPosition INT,
+    Status NVARCHAR(50),
+    LastSeen DATETIME,
+    FOREIGN KEY (RackID) REFERENCES Rack(RackID)
+);
+
+CREATE TABLE AssetCategory (
+    CategoryID VARCHAR(20) PRIMARY KEY,
+    CategoryName NVARCHAR(100) NOT NULL,
+    CategoryCode VARCHAR(50),
+    Description NVARCHAR(500)
+);
+
+CREATE TABLE AlertThreshold (
+    ThresholdID VARCHAR(20) PRIMARY KEY,
+    MetricType NVARCHAR(50) NOT NULL,
+    WarningValue FLOAT,
+    CriticalValue FLOAT,
+    IsActive INT
+);
+
+CREATE TABLE [Role] (
+    RoleID VARCHAR(20) PRIMARY KEY,
+    RoleName NVARCHAR(50) NOT NULL,
+    Description NVARCHAR(255)
+);
+
+CREATE TABLE [User] (
+    UserID VARCHAR(20) PRIMARY KEY,
+    Username VARCHAR(50) NOT NULL,
+    PasswordHash VARCHAR(255) NOT NULL,
+    FullName NVARCHAR(100) NOT NULL,
+    Email VARCHAR(100),
+    Status NVARCHAR(20),
+    CreatedAt DATETIME
+);
+
+CREATE TABLE UserRole (
+    UserRoleID VARCHAR(20) PRIMARY KEY,
+    UserID VARCHAR(20) NOT NULL,
+    RoleID VARCHAR(20) NOT NULL,
+    FOREIGN KEY (UserID) REFERENCES [User](UserID),
+    FOREIGN KEY (RoleID) REFERENCES [Role](RoleID)
+);
+
+CREATE TABLE Incident (
+    IncidentID VARCHAR(20) PRIMARY KEY,
+    CreatedID VARCHAR(20) NOT NULL,
+    Title NVARCHAR(200) NOT NULL,
+    Description NVARCHAR(MAX),
+    Severity NVARCHAR(20),
+    Status NVARCHAR(20),
+    CreatedAt DATETIME,
+    ResolvedAt DATETIME,
+    FOREIGN KEY (CreatedID) REFERENCES [User](UserID)
+);
+
+CREATE TABLE MaintainTicket (
+    TicketID VARCHAR(20) PRIMARY KEY,
+    IncidentID VARCHAR(20) NOT NULL,
+    ServerID VARCHAR(20) NOT NULL,
+    AssignedTo VARCHAR(20) NOT NULL,
+    CreatedBy VARCHAR(20) NOT NULL,
+    Priority NVARCHAR(20),
+    Status NVARCHAR(20),
+    ScheduledAt DATETIME,
+    StartedAt DATETIME,
+    CompletedAt DATETIME,
+    FOREIGN KEY (IncidentID) REFERENCES Incident(IncidentID),
+    FOREIGN KEY (ServerID) REFERENCES Server(ServerID),
+    FOREIGN KEY (AssignedTo) REFERENCES [User](UserID),
+    FOREIGN KEY (CreatedBy) REFERENCES [User](UserID)
+);
+
+CREATE TABLE Asset (
+    AssetID VARCHAR(20) PRIMARY KEY,
+    CategoryID VARCHAR(20) NOT NULL,
+    ServerID VARCHAR(20) NOT NULL,
+    AssetTag VARCHAR(50),
+    AssetName NVARCHAR(100) NOT NULL,
+    SerialNumber VARCHAR(100),
+    Manufacturer NVARCHAR(100),
+    Model NVARCHAR(100),
+    CPUModel NVARCHAR(100),
+    RAMTotalGB INT,
+    AcquisitionDate DATE,
+    AcquisitionCost FLOAT,
+    Status NVARCHAR(50),
+    FOREIGN KEY (CategoryID) REFERENCES AssetCategory(CategoryID),
+    FOREIGN KEY (ServerID) REFERENCES Server(ServerID)
+);
+
+CREATE TABLE TelemetryMetric (
+    MetricID VARCHAR(20) PRIMARY KEY,
+    ServerID VARCHAR(20) NOT NULL,
+    CPUUsage FLOAT,
+    RAMUsage FLOAT,
+    NetworkTraffic FLOAT,
+    ContainerStates NVARCHAR(50),
+    FOREIGN KEY (ServerID) REFERENCES Server(ServerID)
+);
+
+CREATE TABLE Alert (
+    AlertID VARCHAR(20) PRIMARY KEY,
+    ServerID VARCHAR(20) NOT NULL,
+    ThresholdID VARCHAR(20) NOT NULL,
+    AcknowledgedBy VARCHAR(20),
+    Alerttype NVARCHAR(50),
+    Severity NVARCHAR(20),
+    State NVARCHAR(20),
+    Message NVARCHAR(MAX),
+    TriggeredAt DATETIME,
+    ResolvedAt DATETIME,
+    FOREIGN KEY (ServerID) REFERENCES Server(ServerID),
+    FOREIGN KEY (ThresholdID) REFERENCES AlertThreshold(ThresholdID),
+    FOREIGN KEY (AcknowledgedBy) REFERENCES [User](UserID)
+);
+
+CREATE TABLE AuditLog (
+    LogID VARCHAR(20) PRIMARY KEY,
+    IncidentID VARCHAR(20),
+    UserID VARCHAR(20) NOT NULL,
+    Action NVARCHAR(50),
+    EntityType NVARCHAR(50),
+    EntityID VARCHAR(20),
+    Timestamp DATETIME,
+    IPAddress VARCHAR(50),
+    Details NVARCHAR(MAX),
+    FOREIGN KEY (IncidentID) REFERENCES Incident(IncidentID),
+    FOREIGN KEY (UserID) REFERENCES [User](UserID)
+);
+
+CREATE TABLE AssetStatusChange (
+    ChangeID VARCHAR(20) PRIMARY KEY,
+    AssetID VARCHAR(20) NOT NULL,
+    PreviousStatus NVARCHAR(50),
+    NewStatus NVARCHAR(50),
+    Reason NVARCHAR(255),
+    ChangedAt DATETIME,
+    FOREIGN KEY (AssetID) REFERENCES Asset(AssetID)
+);
+
+CREATE TABLE Warranty (
+    WarrantyID VARCHAR(20) PRIMARY KEY,
+    AssetID VARCHAR(20) NOT NULL,
+    WarrantyType NVARCHAR(50),
+    WarrantyName NVARCHAR(100),
+    ContractNumber VARCHAR(50),
+    StartDate DATE,
+    EndDate DATE,
+    FOREIGN KEY (AssetID) REFERENCES Asset(AssetID)
+);
+
+CREATE TABLE Workload (
+    WorkloadID VARCHAR(20) PRIMARY KEY,
+    ServerID VARCHAR(20) NOT NULL,
+    WorkloadName NVARCHAR(100),
+    ContainerID INT,
+    ServiceType NVARCHAR(50),
+    Status NVARCHAR(50),
+    FOREIGN KEY (ServerID) REFERENCES Server(ServerID)
+);
+
+CREATE TABLE MaintenanceLog (
+    LogID VARCHAR(20) PRIMARY KEY,
+    TicketID VARCHAR(20) NOT NULL,
+    TechnicianID VARCHAR(20) NOT NULL,
+    AssetID VARCHAR(20) NOT NULL,
+    ARSessionUsed VARCHAR(10),
+    InvestigationNotes NVARCHAR(MAX),
+    RootCause NVARCHAR(MAX),
+    CorrectiveAction NVARCHAR(MAX),
+    LoggedAt DATETIME,
+    FOREIGN KEY (TicketID) REFERENCES MaintainTicket(TicketID),
+    FOREIGN KEY (TechnicianID) REFERENCES [User](UserID),
+    FOREIGN KEY (AssetID) REFERENCES Asset(AssetID)
+);
 GO
 
--- 1. Sites
 INSERT INTO Site (SiteID, SiteName, Location, Description) VALUES
-('S001', 'DC Ho Chi Minh Q1', '123 Nguyen Hue, Q1, TP.HCM', 'Trung tâm dữ liệu chính miền Nam'),
-('S002', 'DC Ha Noi Cau Giay', '45 Duy Tan, Cau Giay, Ha Noi', 'Trung tâm dữ liệu chính miền Bắc'),
-('S003', 'DC Da Nang Hai Chau', '78 Bach Dang, Hai Chau, Da Nang', 'Trung tâm dữ liệu khu vực miền Trung'),
-('S004', 'DC Can Tho Ninh Kieu', '12 Hoa Bien, Ninh Kieu, Can Tho', 'Trung tâm dữ liệu miền Tây'),
-('S005', 'DC Hai Phong Hong Bang', '99 Dien Bien Phu, Hai Phong', 'Trung tâm dữ liệu thành phố cảng'),
-('S006', 'DC Binh Duong Di An', '15 DT743, Di An, Binh Duong', 'Trung tâm dữ liệu vệ tinh công nghiệp'),
-('S007', 'DC Dong Nai Bien Hoa', '45 Nguyen Ai Quoc, Bien Hoa', 'Trung tâm dữ liệu công nghiệp Biên Hòa'),
-('S008', 'DC Nha Trang Vinh Hai', '23 Pham Van Dong, Nha Trang', 'Trung tâm dữ liệu duyên hải miền Trung'),
-('S009', 'DC Hue Phu Hoi', '10 Hung Vuong, TP. Hue', 'Trung tâm dữ liệu cố đô'),
-('S010', 'DC Quang Ninh Ha Long', '56 Le Thanh Tong, Ha Long', 'Trung tâm dữ liệu vùng mỏ'),
-('S011', 'DC Vung Tau Thang Tam', '89 Hoang Hoa Tham, Vũng Tàu', 'Trung tâm dữ liệu dầu khí'),
-('S012', 'DC Buon Ma Thuot', '12 Le Duan, Buon Ma Thuot', 'Trung tâm dữ liệu Tây Nguyên'),
-('S013', 'DC Quy Nhon Tran Hung Dao', '34 An Duong Vuong, Quy Nhon', 'Trung tâm dữ liệu Bình Định'),
-('S014', 'DC Vinh Hung Hoa', '78 Le Nin, TP. Vinh, Nghe An', 'Trung tâm dữ liệu Bắc Trung Bộ'),
-('S015', 'DC Bac Ninh Tu Son', '120 Tran Phu, Tu Son', 'Trung tâm dữ liệu công nghiệp phía Bắc');
+('S001', N'DC Ho Chi Minh Q1', '123 Nguyen Hue, Q1, TP.HCM', N'Trung tâm dữ liệu chính miền Nam'),
+('S002', N'DC Ha Noi Cau Giay', '45 Duy Tan, Cau Giay, Ha Noi', N'Trung tâm dữ liệu chính miền Bắc'),
+('S003', N'DC Da Nang Hai Chau', '78 Bach Dang, Hai Chau, Da Nang', N'Trung tâm dữ liệu khu vực miền Trung'),
+('S004', N'DC Can Tho Ninh Kieu', '12 Hoa Bien, Ninh Kieu, Can Tho', N'Trung tâm dữ liệu miền Tây'),
+('S005', N'DC Hai Phong Hong Bang', '99 Dien Bien Phu, Hai Phong', N'Trung tâm dữ liệu thành phố cảng'),
+('S006', N'DC Binh Duong Di An', '15 DT743, Di An, Binh Duong', N'Trung tâm dữ liệu vệ tinh công nghiệp'),
+('S007', N'DC Dong Nai Bien Hoa', '45 Nguyen Ai Quoc, Bien Hoa', N'Trung tâm dữ liệu công nghiệp Biên Hòa'),
+('S008', N'DC Nha Trang Vinh Hai', '23 Pham Van Dong, Nha Trang', N'Trung tâm dữ liệu duyên hải miền Trung'),
+('S009', 'DC Hue Phu Hoi', '10 Hung Vuong, TP. Hue', N'Trung tâm dữ liệu cố đô'),
+('S010', 'DC Quang Ninh Ha Long', '56 Le Thanh Tong, Ha Long', N'Trung tâm dữ liệu vùng mỏ'),
+('S011', 'DC Vung Tau Thang Tam', '89 Hoang Hoa Tham, Vũng Tàu', N'Trung tâm dữ liệu dầu khí'),
+('S012', 'DC Buon Ma Thuot', '12 Le Duan, Buon Ma Thuot', N'Trung tâm dữ liệu Tây Nguyên'),
+('S013', 'DC Quy Nhon Tran Hung Dao', '34 An Duong Vuong, Quy Nhon', N'Trung tâm dữ liệu Bình Định'),
+('S014', 'DC Vinh Hung Hoa', '78 Le Nin, TP. Vinh, Nghe An', N'Trung tâm dữ liệu Bắc Trung Bộ'),
+('S015', 'DC Bac Ninh Tu Son', '120 Tran Phu, Tu Son', N'Trung tâm dữ liệu công nghiệp phía Bắc');
 
--- 2. Rooms
 INSERT INTO Room (RoomID, SiteID, RoomName, FloorLevel) VALUES
 ('R001', 'S001', 'Server Room A1', 'Floor 2'), ('R002', 'S001', 'Server Room A2', 'Floor 3'),
 ('R003', 'S002', 'Server Room B1', 'Floor 1'), ('R004', 'S002', 'Server Room B2', 'Floor 2'),
@@ -53,7 +245,6 @@ INSERT INTO Room (RoomID, SiteID, RoomName, FloorLevel) VALUES
 ('R017', 'S015', 'Server Room O1', 'Floor 2'), ('R018', 'S001', 'Server Room A3', 'Floor 4'),
 ('R019', 'S002', 'Server Room B3', 'Floor 3'), ('R020', 'S003', 'Server Room C2', 'Floor 3');
 
--- 3. Racks
 INSERT INTO Rack (RackID, RoomID, RackName, MaxUnit, LocationInRoom) VALUES
 ('RK001', 'R001', 'Rack-Row1-01', 42, 'Corner Left'), ('RK002', 'R001', 'Rack-Row1-02', 42, 'Corner Left'),
 ('RK003', 'R002', 'Rack-Row2-01', 48, 'Center Room'), ('RK004', 'R003', 'Rack-HN-01', 42, 'North Wall'),
@@ -66,20 +257,18 @@ INSERT INTO Rack (RackID, RoomID, RackName, MaxUnit, LocationInRoom) VALUES
 ('RK017', 'R016', 'Rack-VINH-01', 42, 'Zone 4'), ('RK018', 'R017', 'Rack-BN-01', 48, 'Zone 5'),
 ('RK019', 'R018', 'Rack-Row3-01', 42, 'Row C'), ('RK020', 'R020', 'Rack-Row4-01', 42, 'Row D');
 
--- 4. Asset Categories
 INSERT INTO AssetCategory (CategoryID, CategoryName, CategoryCode, Description) VALUES
-('CAT001', 'Rack Server', 'SRV-RACK', 'May chu rack hieu nang cao'),
-('CAT002', 'Network Switch', 'NET-SW', 'Thiet bi chuyen mach mang'),
-('CAT003', 'UPS Power', 'PWR-UPS', 'Bo luu dien du phong'),
-('CAT004', 'Firewall Appliance', 'SEC-FW', 'Thiet bi tuong lua bao mat'),
-('CAT005', 'Storage SAN', 'STO-SAN', 'He thong luu tru mang SAN'),
-('CAT006', 'Router Core', 'NET-RTR', 'Thiet bi dinh tuyen core'),
-('CAT007', 'Patch Panel', 'NET-PP', 'Thang quan ly cap mang'),
-('CAT008', 'PDU Power Strip', 'PWR-PDU', 'Thanh phan phoi nguon dien'),
-('CAT009', 'Load Balancer', 'NET-LB', 'Thiet bi can bang tai'),
-('CAT010', 'KVM Console', 'ACC-KVM', 'Thiet bi dieu khiển man hinh tap trung');
+('CAT001', 'Rack Server', 'SRV-RACK', N'Máy chủ rack hiệu năng cao'),
+('CAT002', 'Network Switch', 'NET-SW', N'Thiết bị chuyển mạch mạng'),
+('CAT003', 'UPS Power', 'PWR-UPS', N'Bộ lưu điện dự phòng'),
+('CAT004', 'Firewall Appliance', 'SEC-FW', N'Thiết bị tường lửa bảo mật'),
+('CAT005', 'Storage SAN', 'STO-SAN', N'Hệ thống lưu trữ mạng SAN'),
+('CAT006', 'Router Core', 'NET-RTR', N'Thiết bị định tuyến core'),
+('CAT007', 'Patch Panel', 'NET-PP', N'Thanh quản lý cáp mạng'),
+('CAT008', 'PDU Power Strip', 'PWR-PDU', N'Thanh phân phối nguồn điện'),
+('CAT009', 'Load Balancer', 'NET-LB', N'Thiết bị cân bằng tải'),
+('CAT010', 'KVM Console', 'ACC-KVM', N'Thiết bị điều khiển màn hình tập trung');
 
--- 5. Alert Thresholds
 INSERT INTO AlertThreshold (ThresholdID, MetricType, WarningValue, CriticalValue, IsActive) VALUES
 ('THR001', 'CPU', 80.0, 95.0, 1),
 ('THR002', 'RAM', 85.0, 92.0, 1),
@@ -92,14 +281,32 @@ INSERT INTO AlertThreshold (ThresholdID, MetricType, WarningValue, CriticalValue
 ('THR009', 'FanSpeed', 3000.0, 1000.0, 1),
 ('THR010', 'Voltage', 210.0, 190.0, 1);
 
--- 6. Incidents
+INSERT INTO [Role] (RoleID, RoleName, Description) VALUES
+('ROLE_ADMIN', 'Administrator', N'Quản trị viên hệ thống'),
+('ROLE_TECH', 'Technician', N'Kỹ thuật viên bảo trì');
+
+INSERT INTO [User] (UserID, Username, PasswordHash, FullName, Email, Status, CreatedAt) VALUES
+('USR001', 'giaan', 'hash_pwd_01', N'Trần Huỳnh Gia An', 'anthg0226@ut.edu.vn', 'Active', '2025-01-01 00:00:00'),
+('USR002', 'kyanh', 'hash_pwd_02', N'Hoàng Kỳ Anh', 'anhhk791149@ut.edu.vn', 'Active', '2025-01-01 00:00:00'),
+('USR003', 'giabao', 'hash_pwd_03', N'Lê Gia Bảo', 'baolg799255@ut.edu.vn', 'Active', '2025-01-01 00:00:00'),
+('USR004', 'tuyetphuong', 'hash_pwd_04', N'Nguyễn Hoàng Tuyết Phương', 'phuongnht2533@ut.edu.vn', 'Active', '2025-01-01 00:00:00'),
+('USR005', 'huyhieu', 'hash_pwd_05', N'Nguyễn Huy Hiệu', 'hieunh1857@ut.edu.vn', 'Active', '2025-01-01 00:00:00');
+
+INSERT INTO UserRole (UserRoleID, UserID, RoleID) VALUES
+('UR001', 'USR001', 'ROLE_ADMIN'),
+('UR002', 'USR002', 'ROLE_TECH'),
+('UR003', 'USR003', 'ROLE_TECH'),
+('UR004', 'USR004', 'ROLE_TECH'),
+('UR005', 'USR005', 'ROLE_TECH');
+
 INSERT INTO Incident (IncidentID, CreatedID, Title, Description, Severity, Status, CreatedAt, ResolvedAt) VALUES
-('INC001', 'USR001', 'CPU High Load on Web Server', 'Server dat nguong CPU cao', 'High', 'Resolved', '2026-09-10 14:00:00', '2026-09-10 15:30:00'),
-('INC002', 'USR004', 'Network Latency Spike', 'Phat hien do tre mang tang cao', 'Medium', 'In Progress', '2026-09-12 08:00:00', NULL),
-('INC003', 'USR002', 'RAM Overload on DB Server', 'Dung luong RAM vuot nguong', 'Critical', 'Open', '2026-09-13 11:10:00', NULL),
-('INC004', 'USR003', 'Lost Connection to App Server', 'Mat ket noi tam thoi', 'Low', 'Resolved', '2026-09-08 22:00:00', '2026-09-08 22:45:00');
+('INC001', 'USR001', 'CPU High Load on Web Server', N'Server đạt ngưỡng CPU cao', 'High', 'Resolved', '2026-09-10 14:00:00', '2026-09-10 15:30:00'),
+('INC002', 'USR004', 'Network Latency Spike', N'Phát hiện độ trễ mạng tăng cao', 'Medium', 'In Progress', '2026-09-12 08:00:00', NULL),
+('INC003', 'USR002', 'RAM Overload on DB Server', N'Dung lượng RAM vượt ngưỡng', 'Critical', 'Open', '2026-09-13 11:10:00', NULL),
+('INC004', 'USR003', 'Lost Connection to App Server', N'Mất kết nối tạm thời', 'Low', 'Resolved', '2026-09-08 22:00:00', '2026-09-08 22:45:00');
 GO
 
+-- Chèn dữ liệu tự động 1000 dòng
 WITH NumberCTE AS (
     SELECT TOP 1000 ROW_NUMBER() OVER (ORDER BY (SELECT NULL)) AS RowNum
     FROM sys.all_columns ac1 CROSS JOIN sys.all_columns ac2
@@ -112,10 +319,10 @@ SELECT
     'SRV_' + CAST(n.RowNum AS VARCHAR(10)),
     r.RackID,
     'Server-Node-' + CAST(n.RowNum AS VARCHAR(10)),
-    '192.168.' + CAST((n.RowNum % 254) + 1 AS VARCHAR(3)) + '.' + CAST((n.RowNum % 250) + 1 AS VARCHAR(3)),
+    '192.168.' + CAST((n.RowNum % 250) + 1 AS VARCHAR(3)) + '.' + CAST((n.RowNum % 250) + 1 AS VARCHAR(3)),
     'QR-CODE-' + CAST(n.RowNum AS VARCHAR(10)),
     (n.RowNum % 42) + 1,
-    CASE WHEN n.RowNum % 15 = 0 THEN 'Maintenance' ELSE 'Active' END,
+    CASE WHEN n.RowNum % 10 = 0 THEN 'Maintenance' ELSE 'Active' END,
     DATEADD(DAY, -(n.RowNum % 30), GETDATE())
 FROM NumberCTE n
 JOIN RackList r ON (n.RowNum % (SELECT COUNT(*) FROM Rack)) + 1 = r.rIndex;
@@ -137,7 +344,7 @@ SELECT
     c.CategoryID,
     s.ServerID,
     'TAG-' + CAST(10000 + n.RowNum AS VARCHAR(10)),
-    'Hardware Asset ' + CAST(n.RowNum AS VARCHAR(10)),
+    N'Hardware Asset ' + CAST(n.RowNum AS VARCHAR(10)),
     'SN-GEN-' + CAST(100000 + n.RowNum AS VARCHAR(10)),
     CASE (n.RowNum % 3) WHEN 0 THEN 'Dell' WHEN 1 THEN 'HPE' ELSE 'Cisco' END,
     'Model-X' + CAST((n.RowNum % 10) AS VARCHAR(5)),
@@ -192,7 +399,7 @@ SELECT
     'Alert Type ' + CAST(t.tIndex AS VARCHAR(5)),
     CASE WHEN n.RowNum % 3 = 0 THEN 'Critical' ELSE 'Warning' END,
     CASE WHEN n.RowNum % 4 = 0 THEN 'Closed' ELSE 'Active' END,
-    'Thong so vuot nguong he thong lan thu ' + CAST(n.RowNum AS VARCHAR(10)),
+    N'Thông số vượt ngưỡng hệ thống lần thứ ' + CAST(n.RowNum AS VARCHAR(10)),
     DATEADD(HOUR, -n.RowNum, GETDATE()),
     CASE WHEN n.RowNum % 4 = 0 THEN GETDATE() ELSE NULL END
 FROM NumberCTE n
@@ -221,7 +428,7 @@ SELECT
     'SRV_' + CAST((n.RowNum % 1000) + 1 AS VARCHAR(10)),
     DATEADD(MINUTE, -n.RowNum, GETDATE()),
     '192.168.1.' + CAST((n.RowNum % 250) + 1 AS VARCHAR(3)),
-    'Thuc hien thao tac he thong tu dong buoc ' + CAST(n.RowNum AS VARCHAR(10))
+    N'Thực hiện thao tác hệ thống tự động bước ' + CAST(n.RowNum AS VARCHAR(10))
 FROM NumberCTE n
 JOIN IncidentList i ON (n.RowNum % (SELECT COUNT(*) FROM Incident)) + 1 = i.iIndex
 JOIN UserList u ON (n.RowNum % (SELECT COUNT(*) FROM [User])) + 1 = u.uIndex;
@@ -240,7 +447,7 @@ SELECT
     a.AssetID,
     CASE WHEN n.RowNum % 2 = 0 THEN 'In Use' ELSE 'Maintenance' END,
     CASE WHEN n.RowNum % 2 = 0 THEN 'Maintenance' ELSE 'In Use' END,
-    'Cap nhat trang thai dinh ky lan ' + CAST(n.RowNum AS VARCHAR(10)),
+    N'Cập nhật trạng thái định kỳ lần ' + CAST(n.RowNum AS VARCHAR(10)),
     DATEADD(DAY, -(n.RowNum % 30), GETDATE())
 FROM NumberCTE n
 JOIN AssetList a ON (n.RowNum % (SELECT COUNT(*) FROM Asset)) + 1 = a.aIndex;
@@ -258,7 +465,7 @@ SELECT
     'WAR_' + CAST(n.RowNum AS VARCHAR(10)),
     a.AssetID,
     CASE WHEN n.RowNum % 2 = 0 THEN 'Standard' ELSE 'Extended' END,
-    'Goi bao hanh VIP ' + CAST(n.RowNum AS VARCHAR(10)),
+    N'Gói bảo hành VIP ' + CAST(n.RowNum AS VARCHAR(10)),
     'CTR-' + CAST(50000 + n.RowNum AS VARCHAR(10)),
     DATEADD(DAY, -(n.RowNum % 180), '2025-01-01'),
     DATEADD(DAY, 365 + (n.RowNum % 180), '2026-01-01')
@@ -289,18 +496,87 @@ WITH NumberCTE AS (
     SELECT TOP 1000 ROW_NUMBER() OVER (ORDER BY (SELECT NULL)) AS RowNum
     FROM sys.all_columns ac1 CROSS JOIN sys.all_columns ac2
 ),
+IncidentList AS (
+    SELECT ROW_NUMBER() OVER (ORDER BY IncidentID) as iIndex, IncidentID FROM Incident
+),
+ServerList AS (
+    SELECT ROW_NUMBER() OVER (ORDER BY ServerID) as sIndex, ServerID FROM Server
+),
+UserList AS (
+    SELECT ROW_NUMBER() OVER (ORDER BY UserID) as uIndex, UserID FROM [User]
+)
+INSERT INTO MaintainTicket (TicketID, IncidentID, ServerID, AssignedTo, CreatedBy, Priority, Status, ScheduledAt, StartedAt, CompletedAt)
+SELECT 
+    'TCK_' + CAST(n.RowNum AS VARCHAR(10)),
+    i.IncidentID,
+    s.ServerID,
+    u1.UserID,
+    u2.UserID,
+    CASE WHEN n.RowNum % 3 = 0 THEN 'High' WHEN n.RowNum % 3 = 1 THEN 'Medium' ELSE 'Low' END,
+    CASE WHEN n.RowNum % 4 = 0 THEN 'Completed' WHEN n.RowNum % 4 = 1 THEN 'In Progress' ELSE 'Pending' END,
+    DATEADD(DAY, -(n.RowNum % 30), GETDATE()),
+    DATEADD(HOUR, -2, DATEADD(DAY, -(n.RowNum % 30), GETDATE())),
+    CASE WHEN n.RowNum % 4 = 0 THEN GETDATE() ELSE NULL END
+FROM NumberCTE n
+JOIN IncidentList i ON (n.RowNum % (SELECT COUNT(*) FROM Incident)) + 1 = i.iIndex
+JOIN ServerList s ON (n.RowNum % (SELECT COUNT(*) FROM Server)) + 1 = s.sIndex
+JOIN UserList u1 ON (n.RowNum % (SELECT COUNT(*) FROM [User])) + 1 = u1.uIndex
+JOIN UserList u2 ON ((n.RowNum + 1) % (SELECT COUNT(*) FROM [User])) + 1 = u2.uIndex;
+GO
+
+WITH NumberCTE AS (
+    SELECT TOP 1000 ROW_NUMBER() OVER (ORDER BY (SELECT NULL)) AS RowNum
+    FROM sys.all_columns ac1 CROSS JOIN sys.all_columns ac2
+),
+TicketList AS (
+    SELECT ROW_NUMBER() OVER (ORDER BY TicketID) as tIndex, TicketID FROM MaintainTicket
+),
 AssetList AS (
     SELECT ROW_NUMBER() OVER (ORDER BY AssetID) as aIndex, AssetID FROM Asset
+),
+UserList AS (
+    SELECT ROW_NUMBER() OVER (ORDER BY UserID) as uIndex, UserID FROM [User]
 )
 INSERT INTO MaintenanceLog (LogID, TicketID, TechnicianID, AssetID, ARSessionUsed, InvestigationNotes, RootCause)
 SELECT 
     'MLOG_' + CAST(n.RowNum AS VARCHAR(10)),
-    'TCK_' + CAST((n.RowNum % 100) + 1 AS VARCHAR(10)),
-    'TECH_' + CAST((n.RowNum % 10) + 1 AS VARCHAR(10)),
+    t.TicketID,
+    u.UserID,
     a.AssetID,
-    CASE WHEN n.RowNum % 2 = 0 THEN 1 ELSE 0 END,
-    'Kiem tra chi tiet thiet bi va thay the linh kien dinh ky so ' + CAST(n.RowNum AS VARCHAR(10)),
-    'Loi do qua nhiet va hao mon phan cung thong thuong'
+    CASE WHEN n.RowNum % 2 = 0 THEN '1' ELSE '0' END,
+    N'Kiểm tra chi tiết thiết bị và xử lý sự cố định kỳ bước ' + CAST(n.RowNum AS VARCHAR(10)),
+    N'Lỗi phát sinh do quá tải nhiệt độ và xung đột phần mềm hệ thống'
 FROM NumberCTE n
-JOIN AssetList a ON (n.RowNum % (SELECT COUNT(*) FROM Asset)) + 1 = a.aIndex;
+JOIN TicketList t ON (n.RowNum % (SELECT COUNT(*) FROM MaintainTicket)) + 1 = t.tIndex
+JOIN AssetList a ON (n.RowNum % (SELECT COUNT(*) FROM Asset)) + 1 = a.aIndex
+JOIN UserList u ON (n.RowNum % (SELECT COUNT(*) FROM [User])) + 1 = u.uIndex;
+GO
+
+CREATE NONCLUSTERED INDEX IX_Server_IP_Status ON Server(IPAddress, Status);
+CREATE NONCLUSTERED INDEX IX_Telemetry_Server_CPU ON TelemetryMetric(ServerID, CPUUsage);
+CREATE NONCLUSTERED INDEX IX_Incident_Status_Severity ON Incident(Status, Severity);
+CREATE NONCLUSTERED INDEX IX_Alert_TriggeredAt ON Alert(TriggeredAt);
+GO
+
+CREATE TRIGGER trg_Asset_Status_Change
+ON Asset
+AFTER UPDATE
+AS
+BEGIN
+    SET NOCOUNT ON;
+    IF UPDATE(Status)
+    BEGIN
+        INSERT INTO AssetStatusChange (ChangeID, AssetID, PreviousStatus, NewStatus, Reason, ChangedAt)
+        SELECT 
+            'CHG_' + CAST(ABS(CHECKSUM(NEWID())) AS VARCHAR(15)),
+            inserted.AssetID,
+            deleted.Status,
+            inserted.Status,
+            N'Tự động ghi nhận thay đổi trạng thái hệ thống',
+            GETDATE()
+        FROM inserted
+        INNER JOIN deleted ON inserted.AssetID = deleted.AssetID
+        WHERE ISNULL(inserted.Status, '') <> ISNULL(deleted.Status, '');
+    END
+END;
 GO
